@@ -106,35 +106,6 @@ pub fn is_joystick(event: &Device) -> bool {
     return is_joystick;
 }
 
-// pub fn scan_devices(vendor_id: &str, product_id: &str, name: &str) -> Option<PathBuf> {
-//     let mut enumerator = Enumerator::new().ok()?;
-//     enumerator.match_subsystem("input").ok()?;
-
-//     for device in enumerator.scan_devices().ok()? {
-//         if !is_joystick(&device) {
-//             continue;
-//         }
-
-//         let props: std::collections::HashMap<_, _> = device
-//             .properties()
-//             .map(|p| {
-//                 (
-//                     p.name().to_string_lossy().to_string(),
-//                     p.value().to_string_lossy().to_string(),
-//                 )
-//             })
-//             .collect();
-
-//         let is_joystick = props.get("ID_INPUT_JOYSTICK") == Some(&"1".to_string());
-//         if !is_joystick {
-//             continue;
-//         }
-//         let devname = props.get("NAME");
-//     }
-
-//     None
-// }
-
 /// Returns the first non-empty NAME property from the device or any of its parents
 fn get_device_name(mut event: udev::Device) -> Option<String> {
     loop {
@@ -166,7 +137,7 @@ pub struct AppGamepad {
 }
 
 pub struct GridLaunch {
-    devices: HashMap<PathBuf, AppGamepad>,
+    gamepads: HashMap<PathBuf, AppGamepad>,
     udev_monitor: MonitorSocket,
 }
 
@@ -180,9 +151,43 @@ impl GridLaunch {
             .map_err(|err| err.to_string())?;
 
         Ok(GridLaunch {
-            devices: HashMap::new(),
+            gamepads: HashMap::new(),
             udev_monitor: monitor,
         })
+    }
+
+    fn scan_refresh_devices(&mut self) -> Result<(), String> {
+        let mut enumerator = Enumerator::new().map_err(|err| err.to_string())?;
+        enumerator
+            .match_subsystem("input")
+            .map_err(|err| err.to_string())?;
+
+        self.gamepads.clear(); // remove all gamepads as we will be re-scanning
+        for device in enumerator.scan_devices().map_err(|err| err.to_string())? {
+            if !is_joystick(&device) {
+                continue;
+            }
+            let Some(devnode) = device.devnode() else {
+                continue;
+            };
+
+            match EvdevDevice::open(&devnode) {
+                Ok(dev) => {
+                    dev.set_nonblocking(true).map_err(|err| err.to_string())?;
+                    let gamepad = AppGamepad {
+                        devnode: devnode.to_path_buf(),
+                        name: get_device_name_with_unk_default(&device),
+                        evdev_device: dev,
+                    };
+                    let gamepadname = gamepad.name.clone();
+                    self.gamepads.insert(devnode.to_path_buf(), gamepad);
+                    println!("Added controller: {}", gamepadname);
+                }
+                Err(e) => eprintln!("Failed to open {:?}: {}", devnode, e),
+            }
+        }
+
+        Ok(())
     }
 
     fn handle_udev_input_monitor_events(&mut self) {
@@ -197,24 +202,28 @@ impl GridLaunch {
 
             match event.event_type() {
                 EventType::Add => {
-                    if self.devices.contains_key(devnode) {
+                    if self.gamepads.contains_key(devnode) {
                         continue;
                     }
                     match EvdevDevice::open(&devnode) {
                         Ok(dev) => {
+                            if !dev.set_nonblocking(true).is_ok() {
+                                continue;
+                            }
+
                             let gamepad = AppGamepad {
                                 devnode: devnode.to_path_buf(),
                                 name: get_device_name_with_unk_default(&event),
                                 evdev_device: dev,
                             };
                             let gamepadname = gamepad.name.clone();
-                            self.devices.insert(devnode.to_path_buf(), gamepad);
+                            self.gamepads.insert(devnode.to_path_buf(), gamepad);
                             println!("Added controller: {}", gamepadname);
                         }
                         Err(e) => eprintln!("Failed to open {:?}: {}", devnode, e),
                     }
                 }
-                EventType::Remove => match self.devices.remove(devnode) {
+                EventType::Remove => match self.gamepads.remove(devnode) {
                     Some(dev) => println!("Removed controller: {:#?}", dev.name),
                     None => {}
                 },
@@ -223,34 +232,32 @@ impl GridLaunch {
         }
     }
 
+    fn poll_gamepad_inputs(&mut self) {
+        // Poll input events
+        for gamepad in self.gamepads.values_mut() {
+            let Ok(events) = gamepad.evdev_device.fetch_events() else {
+                continue;
+            };
+
+            for ev in events {
+                let evsumm = ev.destructure();
+                println!("Name: {} {:#?}", gamepad.name, evsumm);
+            }
+        }
+    }
     fn main_poll(&mut self) {
         loop {
             self.handle_udev_input_monitor_events();
-            thread::sleep(Duration::from_millis(100));
+            self.poll_gamepad_inputs();
+            thread::sleep(Duration::from_millis(10));
         }
     }
 }
 
 fn main() -> Result<(), String> {
     let mut app = GridLaunch::new()?;
-
+    app.scan_refresh_devices()?;
+    print!("refreshed");
     app.main_poll();
     Ok(())
-
-    // Map of devnode -> (evdev device, name)
-    // let mut devices: HashMap<PathBuf, (EvdevDevice, String)> = HashMap::new();
-
-    // Iterate over events
-
-    // // Poll input events
-    // for (devnode, (device, name)) in devices.iter_mut() {
-    //     let Ok(events) = device.fetch_events() else {
-    //         continue;
-    //     };
-
-    //     for ev in events {
-    //         let evsumm = ev.destructure();
-    //         println!("Name: {:#?} on {}{:#?}", devnode, name, evsumm);
-    //     }
-    // }
 }
