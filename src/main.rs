@@ -87,7 +87,7 @@ mod gamepad;
 
 use evdev::Device as EvdevDevice;
 use gamepad::parse_button_event;
-// use udev::Moni
+use gridlaunch::ui;
 use std::{collections::HashMap, path::PathBuf, thread, time::Duration};
 use udev::{Device, Enumerator, EventType, MonitorBuilder};
 
@@ -261,8 +261,10 @@ impl GridLaunch {
 }
 
 fn main() -> Result<(), String> {
-    let mut app = GridLaunch::new()?;
-    app.scan_refresh_devices()?;
-    app.main_poll();
-    Ok(())
+    ui::ui_loop_main::ui_loop_main()
+
+    // let mut app = GridLaunch::new()?;
+    // app.scan_refresh_devices()?;
+    // app.main_poll();
+    // Ok(())
 }

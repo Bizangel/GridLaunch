@@ -5,4 +5,9 @@ edition = "2024"
 
 [dependencies]
 evdev = "0.13.2"
+tao = "0.34.6"
 udev = "0.9.3"
+wry = "0.54.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = "0.18.2"
