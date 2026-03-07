@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
-import reactLogo from './assets/react.svg'
 import './App.css'
 import { sendIPCEvent } from './ipc/common'
+import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
 
 type LaunchRequestedEvent = {
   type: 'FromWebViewEvent',
@@ -10,11 +10,6 @@ type LaunchRequestedEvent = {
   }
 }
 
-// type FromWebViewEvents = LaunchRequestedEvent;
-
-// const sendIPC(event: )
-
-
 function App() {
   const [count, setCount] = useState(0)
 
@@ -22,6 +17,10 @@ function App() {
   const callbutton = useCallback(() => {
     sendIPCEvent({type: 'LaunchRequested'})
   }, [])
+
+  useWebViewEventHandler('GamepadButtonPressed', (ev) => {
+    console.log("button pressed: ", ev)
+  })
 
   return (
     <>

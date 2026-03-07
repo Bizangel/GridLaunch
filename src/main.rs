@@ -1,8 +1,6 @@
 // use std::io::{BufRead, BufReader};
 // use std::process::{Command, Stdio};
 // use std::thread;
-
-mod gamepad;
 // fn launch_game(runas: &str) {
 //     unsafe {
 //         std::env::set_var("SDL_VIDEODRIVER", "x11");
@@ -86,7 +84,7 @@ mod gamepad;
 // }
 
 use evdev::Device as EvdevDevice;
-use gamepad::parse_button_event;
+use gridlaunch::gamepad::parse_button_event;
 use gridlaunch::ui;
 use std::{collections::HashMap, path::PathBuf, thread, time::Duration};
 use udev::{Device, Enumerator, EventType, MonitorBuilder};

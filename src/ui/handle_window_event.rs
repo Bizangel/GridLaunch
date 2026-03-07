@@ -4,6 +4,7 @@ use wry::{
     dpi::{LogicalPosition, LogicalSize},
 };
 
+use crate::gamepad::AppGamepadButton;
 use tao::{event::WindowEvent, event_loop::ControlFlow, keyboard::Key, window::Window};
 
 pub fn handle_window_event(
@@ -30,6 +31,21 @@ pub fn handle_window_event(
                     #[cfg(debug_assertions)]
                     {
                         webview.borrow().open_devtools();
+                    }
+                }
+                Key::Character("t") => {
+                    #[cfg(debug_assertions)]
+                    {
+                        use crate::ui::common::send_event_to_webview;
+
+                        println!("Sending event!");
+                        send_event_to_webview(
+                            &webview.borrow(),
+                            &crate::ui::common::ToWebViewEvent::GamepadButtonPressed {
+                                button: AppGamepadButton::A,
+                                release: false,
+                            },
+                        );
                     }
                 }
                 _ => {}

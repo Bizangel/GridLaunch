@@ -1,7 +1,8 @@
 use evdev::InputEvent;
-use evdev::{AbsoluteAxisCode, Device as EvdevDevice, EventSummary, KeyCode};
+use evdev::{AbsoluteAxisCode, EventSummary, KeyCode};
+use serde::Serialize;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize)]
 pub enum AppGamepadButton {
     A,
     B,
