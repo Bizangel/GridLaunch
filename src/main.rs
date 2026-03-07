@@ -2,6 +2,7 @@
 // use std::process::{Command, Stdio};
 // use std::thread;
 
+mod gamepad;
 // fn launch_game(runas: &str) {
 //     unsafe {
 //         std::env::set_var("SDL_VIDEODRIVER", "x11");
@@ -85,6 +86,7 @@
 // }
 
 use evdev::Device as EvdevDevice;
+use gamepad::parse_button_event;
 // use udev::Moni
 use std::{collections::HashMap, path::PathBuf, thread, time::Duration};
 use udev::{Device, Enumerator, EventType, MonitorBuilder};
@@ -240,8 +242,12 @@ impl GridLaunch {
             };
 
             for ev in events {
-                let evsumm = ev.destructure();
-                println!("Name: {} {:#?}", gamepad.name, evsumm);
+                let btn = parse_button_event(ev);
+
+                match btn {
+                    Some(button) => println!("Pressed {:#?}", button),
+                    None => {}
+                }
             }
         }
     }
@@ -257,7 +263,6 @@ impl GridLaunch {
 fn main() -> Result<(), String> {
     let mut app = GridLaunch::new()?;
     app.scan_refresh_devices()?;
-    print!("refreshed");
     app.main_poll();
     Ok(())
 }
