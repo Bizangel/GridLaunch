@@ -14,12 +14,12 @@ use wry::{
 };
 
 use crate::ui::common::{
-    UI_INITIAL_SIZE_HEIGHT_PX, UI_INITIAL_SIZE_WIDTH_PX, UI_TITLE_NAME, UIEvent,
+    UI_INITIAL_SIZE_HEIGHT_PX, UI_INITIAL_SIZE_WIDTH_PX, UI_TITLE_NAME, AppEvent,
 };
 const MINIFIED_HTML_STR: &str = include_str!("../../src-ui/dist/index.html");
 
 pub fn build_window_with_webview<F>(
-    event_loop: &EventLoop<UIEvent>,
+    event_loop: &EventLoop<AppEvent>,
     webview_ipc_handler: F,
 ) -> (Window, Rc<RefCell<WebView>>)
 where
