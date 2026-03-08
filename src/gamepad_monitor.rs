@@ -4,7 +4,7 @@ use crate::{
     wry_ui_helper::stop_signal::StopSignal,
 };
 
-use crate::events::AppEvent;
+use crate::events::GridLaunchEvent;
 use crate::events::ToWebViewEvent;
 
 use evdev::Device as EvdevDevice;
@@ -108,7 +108,7 @@ impl GamepadMonitor {
         }
     }
 
-    fn poll_gamepad_inputs(&mut self, ui_proxy: &EventLoopProxy<AppEvent>) {
+    fn poll_gamepad_inputs(&mut self, ui_proxy: &EventLoopProxy<GridLaunchEvent>) {
         // Poll input events
         for gamepad in self.gamepads.values_mut() {
             let Ok(events) = gamepad.evdev_device.fetch_events() else {
@@ -120,7 +120,7 @@ impl GamepadMonitor {
 
                 match btn {
                     Some(button_event) => {
-                        let _ = ui_proxy.send_event(AppEvent::ForwardToWebViewEvent(
+                        let _ = ui_proxy.send_event(GridLaunchEvent::ForwardToWebViewEvent(
                             ToWebViewEvent::AppGamepadButtonEvent(button_event),
                         ));
                     }
@@ -129,7 +129,7 @@ impl GamepadMonitor {
             }
         }
     }
-    fn main_poll(&mut self, stop_signal: &StopSignal, ui_proxy: &EventLoopProxy<AppEvent>) {
+    fn main_poll(&mut self, stop_signal: &StopSignal, ui_proxy: &EventLoopProxy<GridLaunchEvent>) {
         while !stop_signal.requested() {
             self.handle_udev_input_monitor_events();
             self.poll_gamepad_inputs(ui_proxy);
@@ -141,7 +141,7 @@ impl GamepadMonitor {
 
 fn _gamepad_monitor_worker_main(
     stop_signal: StopSignal,
-    ui_proxy: &EventLoopProxy<AppEvent>,
+    ui_proxy: &EventLoopProxy<GridLaunchEvent>,
 ) -> Result<(), String> {
     let mut gamepad_monitor = GamepadMonitor::new()?;
     gamepad_monitor.scan_refresh_devices()?;
@@ -150,6 +150,6 @@ fn _gamepad_monitor_worker_main(
     Ok(())
 }
 
-pub fn gamepad_monitor_worker_main(stop_signal: StopSignal, ui_proxy: &EventLoopProxy<AppEvent>) {
+pub fn gamepad_monitor_worker_main(stop_signal: StopSignal, ui_proxy: &EventLoopProxy<GridLaunchEvent>) {
     let _ = _gamepad_monitor_worker_main(stop_signal, ui_proxy);
 }

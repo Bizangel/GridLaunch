@@ -9,7 +9,7 @@ pub enum FromWebViewEvent {
 
 // Events generated to be handled for the main loop
 #[derive(Debug, Clone)]
-pub enum AppEvent {
+pub enum GridLaunchEvent {
     FromWebViewEvent(FromWebViewEvent),
     ForwardToWebViewEvent(ToWebViewEvent),
 }
