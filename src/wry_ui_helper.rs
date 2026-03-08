@@ -4,16 +4,16 @@ use tao::event_loop::{EventLoop, EventLoopProxy};
 use tao::window::Window;
 use wry::{WebView, http::Request};
 
-pub type UIProxy<T> = EventLoopProxy<T>;
-pub type WryAppEventHandler<T> = fn(event: T, &mut WryWebViewApp<T>); // TODO: add state
-pub type WebViewIPCHandler<T> = fn(Request<String>, &UIProxy<T>);
-pub type WryWorkerFunction<T> = fn(StopSignal, &UIProxy<T>);
+pub type AppProxy<T> = EventLoopProxy<T>;
+pub type AppEventHandler<T> = fn(event: T, &mut WryWebViewApp<T>); // TODO: add state
+pub type IPCHandler<T> = fn(Request<String>, &AppProxy<T>);
+pub type WorkerTask<T> = fn(StopSignal, &AppProxy<T>);
 
 pub struct WryWebViewAppBuilder<T: Send + 'static> {
     ui_title_name: String,
-    event_handler: Option<WryAppEventHandler<T>>,
-    worker_functions: Vec<WryWorkerFunction<T>>,
-    webview_ipc_handler: Option<WebViewIPCHandler<T>>,
+    event_handler: Option<AppEventHandler<T>>,
+    worker_functions: Vec<WorkerTask<T>>,
+    webview_ipc_handler: Option<IPCHandler<T>>,
     webview_url: String,
     webview_html: Option<String>,
     devtools_enabled: bool,
@@ -25,10 +25,11 @@ pub struct WryWebViewAppBuilder<T: Send + 'static> {
 pub struct WryWebViewApp<T: Send + 'static> {
     worker_threads: Vec<JoinHandle<()>>,
     workers_stop_signal: StopSignal,
-    pub webview: WebView,
+    webview: WebView,
     _window: Window,
-    event_handler: WryAppEventHandler<T>,
+    event_handler: AppEventHandler<T>,
     event_loop: Option<EventLoop<T>>,
+    ui_proxy: AppProxy<T>,
 }
 
 pub mod common;
@@ -36,4 +37,5 @@ pub mod stop_signal;
 pub mod wry_app_builder;
 pub mod wry_app_handle_window_event;
 pub mod wry_app_run;
+pub mod wry_webview_app;
 pub mod wry_window_builder;

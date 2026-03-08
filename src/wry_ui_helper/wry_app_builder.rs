@@ -1,5 +1,5 @@
 use super::WryWebViewApp;
-use super::{WebViewIPCHandler, WryAppEventHandler, WryWebViewAppBuilder, WryWorkerFunction};
+use super::{AppEventHandler, IPCHandler, WorkerTask, WryWebViewAppBuilder};
 use crate::wry_ui_helper::common::{
     LOCAL_APP_WEBVIEW_URL, WRY_APP_BUILDER_DEFAULT_HEIGHT_PX, WRY_APP_BUILDER_DEFAULT_TITLE,
     WRY_APP_BUILDER_DEFAULT_WIDTH_PX,
@@ -31,17 +31,17 @@ impl<T: Send + 'static> WryWebViewAppBuilder<T> {
         }
     }
 
-    pub fn with_event_handler(mut self, event_handler: WryAppEventHandler<T>) -> Self {
+    pub fn with_event_handler(mut self, event_handler: AppEventHandler<T>) -> Self {
         self.event_handler = Some(event_handler);
         self
     }
 
-    pub fn with_worker_thread(mut self, thread: WryWorkerFunction<T>) -> Self {
+    pub fn with_worker_thread(mut self, thread: WorkerTask<T>) -> Self {
         self.worker_functions.push(thread);
         self
     }
 
-    pub fn with_ipc_handler(mut self, ipc_handler: WebViewIPCHandler<T>) -> Self {
+    pub fn with_ipc_handler(mut self, ipc_handler: IPCHandler<T>) -> Self {
         self.webview_ipc_handler = Some(ipc_handler);
         self
     }
@@ -96,6 +96,7 @@ impl<T: Send + 'static> WryWebViewAppBuilder<T> {
             workers_stop_signal: worker_stop_signal,
             _window: window,
             event_handler: event_handler,
+            ui_proxy: event_loop.create_proxy(),
             event_loop: Some(event_loop),
         };
     }

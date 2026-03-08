@@ -110,7 +110,7 @@ fn main() -> Result<(), String> {
             };
 
             let script = format!("window.postMessage({}, '*');", evpayload);
-            let _ = app.webview.evaluate_script(&script);
+            app.webview_eval(&script);
         }
         _ => println!("Received event: {:#?}", event),
     };
