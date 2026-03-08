@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import './App.css'
 import { sendIPCEvent } from './ipc/common'
 import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
 
