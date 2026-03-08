@@ -1,13 +1,13 @@
 use crate::{
     common::AppGamepad,
     gamepad::{get_device_name_with_unk_default, is_joystick, parse_button_event},
-    ui::common::{AppEvent, ToWebViewEvent},
+    wry_ui_helper::stop_signal::StopSignal,
 };
+
+use crate::events::AppEvent;
+use crate::events::ToWebViewEvent;
+
 use evdev::Device as EvdevDevice;
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
 use std::{collections::HashMap, path::PathBuf, thread, time::Duration};
 use tao::event_loop::EventLoopProxy;
 use udev::{Enumerator, EventType, MonitorBuilder, MonitorSocket};
@@ -15,11 +15,10 @@ use udev::{Enumerator, EventType, MonitorBuilder, MonitorSocket};
 pub struct GamepadMonitor {
     gamepads: HashMap<PathBuf, AppGamepad>,
     udev_monitor: MonitorSocket,
-    ui_loop_proxy: EventLoopProxy<AppEvent>,
 }
 
 impl GamepadMonitor {
-    fn new(ui_loop_proxy: EventLoopProxy<AppEvent>) -> Result<GamepadMonitor, String> {
+    fn new() -> Result<GamepadMonitor, String> {
         let monitor: MonitorSocket = MonitorBuilder::new()
             .unwrap()
             .match_subsystem("input")
@@ -30,7 +29,6 @@ impl GamepadMonitor {
         Ok(GamepadMonitor {
             gamepads: HashMap::new(),
             udev_monitor: monitor,
-            ui_loop_proxy,
         })
     }
 
@@ -110,7 +108,7 @@ impl GamepadMonitor {
         }
     }
 
-    fn poll_gamepad_inputs(&mut self) {
+    fn poll_gamepad_inputs(&mut self, ui_proxy: &EventLoopProxy<AppEvent>) {
         // Poll input events
         for gamepad in self.gamepads.values_mut() {
             let Ok(events) = gamepad.evdev_device.fetch_events() else {
@@ -122,21 +120,19 @@ impl GamepadMonitor {
 
                 match btn {
                     Some(button_event) => {
-                        let _ = self
-                            .ui_loop_proxy
-                            .send_event(AppEvent::ForwardToWebViewEvent(
-                                ToWebViewEvent::AppGamepadButtonEvent(button_event),
-                            ));
+                        let _ = ui_proxy.send_event(AppEvent::ForwardToWebViewEvent(
+                            ToWebViewEvent::AppGamepadButtonEvent(button_event),
+                        ));
                     }
                     None => {}
                 }
             }
         }
     }
-    fn main_poll(&mut self, stop_signal: Arc<AtomicBool>) {
-        while !stop_signal.load(Ordering::Relaxed) {
+    fn main_poll(&mut self, stop_signal: &StopSignal, ui_proxy: &EventLoopProxy<AppEvent>) {
+        while !stop_signal.requested() {
             self.handle_udev_input_monitor_events();
-            self.poll_gamepad_inputs();
+            self.poll_gamepad_inputs(ui_proxy);
             thread::sleep(Duration::from_millis(10));
         }
         println!("Stopped polling")
@@ -144,19 +140,16 @@ impl GamepadMonitor {
 }
 
 fn _gamepad_monitor_worker_main(
-    stop_signal: Arc<AtomicBool>,
-    ui_proxy: EventLoopProxy<AppEvent>,
+    stop_signal: StopSignal,
+    ui_proxy: &EventLoopProxy<AppEvent>,
 ) -> Result<(), String> {
-    let mut gamepad_monitor = GamepadMonitor::new(ui_proxy)?;
+    let mut gamepad_monitor = GamepadMonitor::new()?;
     gamepad_monitor.scan_refresh_devices()?;
-    gamepad_monitor.main_poll(stop_signal);
+    gamepad_monitor.main_poll(&stop_signal, ui_proxy);
 
     Ok(())
 }
 
-pub fn gamepad_monitor_worker_main(
-    stop_signal: Arc<AtomicBool>,
-    ui_proxy: EventLoopProxy<AppEvent>,
-) {
+pub fn gamepad_monitor_worker_main(stop_signal: StopSignal, ui_proxy: &EventLoopProxy<AppEvent>) {
     let _ = _gamepad_monitor_worker_main(stop_signal, ui_proxy);
 }
