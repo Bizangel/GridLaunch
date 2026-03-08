@@ -1,6 +1,7 @@
 use evdev::InputEvent;
 use evdev::{AbsoluteAxisCode, EventSummary, KeyCode};
 use serde::Serialize;
+use udev::Device;
 
 #[derive(Debug, Clone, Copy, Serialize)]
 pub enum AppGamepadButton {
@@ -75,4 +76,42 @@ pub fn parse_button_event(event: InputEvent) -> Option<AppGamepadButtonEvent> {
 
         _ => None,
     }
+}
+
+pub fn is_joystick(event: &Device) -> bool {
+    let Some(devnode) = event.devnode() else {
+        return false;
+    };
+
+    if !devnode.to_string_lossy().contains("event") {
+        return false;
+    }
+
+    let is_joystick = event
+        .property_value("ID_INPUT_JOYSTICK")
+        .map(|val| val.to_string_lossy().to_string())
+        == Some("1".to_string());
+
+    return is_joystick;
+}
+
+/// Returns the first non-empty NAME property from the device or any of its parents
+pub fn get_device_name(mut event: udev::Device) -> Option<String> {
+    loop {
+        if let Some(name) = event.property_value("NAME") {
+            let name_str = name.to_string_lossy().trim_matches('"').to_string();
+            if !name_str.is_empty() {
+                return Some(name_str);
+            }
+        }
+        // Move to parent, stop if there’s none
+        match event.parent() {
+            Some(parent) => event = parent,
+            None => return None,
+        }
+    }
+}
+
+pub fn get_device_name_with_unk_default(dev: &Device) -> String {
+    get_device_name(dev.clone()).unwrap_or_else(|| "Unknown".into())
 }

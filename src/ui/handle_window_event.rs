@@ -1,10 +1,11 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, thread::JoinHandle};
 use wry::{
     Rect, WebView,
     dpi::{LogicalPosition, LogicalSize},
 };
 
 use crate::gamepad::AppGamepadButton;
+use std::sync::{Arc, atomic::AtomicBool, atomic::Ordering};
 use tao::{event::WindowEvent, event_loop::ControlFlow, keyboard::Key, window::Window};
 
 pub fn handle_window_event(
@@ -12,6 +13,8 @@ pub fn handle_window_event(
     control_flow: &mut ControlFlow,
     window: &Window,
     webview: &Rc<RefCell<WebView>>,
+    stop_signal: &Arc<AtomicBool>,
+    worker_threads: &mut Vec<JoinHandle<()>>,
 ) {
     match event {
         WindowEvent::Resized(new_size) => {
@@ -52,6 +55,12 @@ pub fn handle_window_event(
             }
         }
         WindowEvent::CloseRequested => {
+            stop_signal.store(true, Ordering::Relaxed);
+
+            for handle in worker_threads.drain(..) {
+                handle.join().unwrap();
+            }
+
             *control_flow = ControlFlow::ExitWithCode(1);
         }
         _ => {}

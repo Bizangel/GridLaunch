@@ -4,17 +4,13 @@ use tao::{
     window::{Window, WindowBuilder},
 };
 use wry::{
-    Rect, WebViewBuilder,
-    dpi::{LogicalPosition, LogicalSize},
-    http::Request,
-};
-use wry::{
     WebView,
     http::{Response, header::CONTENT_TYPE},
 };
+use wry::{WebViewBuilder, http::Request};
 
 use crate::ui::common::{
-    UI_INITIAL_SIZE_HEIGHT_PX, UI_INITIAL_SIZE_WIDTH_PX, UI_TITLE_NAME, AppEvent,
+    AppEvent, UI_INITIAL_SIZE_HEIGHT_PX, UI_INITIAL_SIZE_WIDTH_PX, UI_TITLE_NAME,
 };
 const MINIFIED_HTML_STR: &str = include_str!("../../src-ui/dist/index.html");
 
