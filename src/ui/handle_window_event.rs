@@ -36,21 +36,6 @@ pub fn handle_window_event(
                         webview.borrow().open_devtools();
                     }
                 }
-                Key::Character("t") => {
-                    #[cfg(debug_assertions)]
-                    {
-                        use crate::ui::common::send_event_to_webview;
-
-                        println!("Sending event!");
-                        send_event_to_webview(
-                            &webview.borrow(),
-                            &crate::ui::common::ToWebViewEvent::GamepadButtonPressed {
-                                button: AppGamepadButton::A,
-                                release: false,
-                            },
-                        );
-                    }
-                }
                 _ => {}
             }
         }

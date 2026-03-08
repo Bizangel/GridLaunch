@@ -4,15 +4,12 @@ export type LaunchRequestedEvent = {
 }
 
 export type FromWebViewEvent = LaunchRequestedEvent;
-
-
 export const sendIPCEvent = (event: FromWebViewEvent) => {
-    const _ev = { type: 'FromWebViewEvent', event: event }
-    window.ipc.postMessage(JSON.stringify(_ev));
+    window.ipc.postMessage(JSON.stringify(event));
 }
 
 // Events that are listened and handled by UI
-
-export type GamepadButtonPressed = { type: 'GamepadButtonPressed', button: string, release: boolean }
+export type GAMEPAD_BUTTONS = "A" | "B" | "X" | "Y" | "LB" | "RB" | "LS" | "RS" | "Start" | "Select" | "DpadLeft" | "DpadRight" | "DpadUp" | "DpadDown";
+export type GamepadButtonPressed = { type: 'AppGamepadButtonEvent', button: GAMEPAD_BUTTONS, release: boolean }
 
 export type ToWebViewEvent = GamepadButtonPressed

@@ -1,6 +1,7 @@
 use crate::{
     common::AppGamepad,
     gamepad::{get_device_name_with_unk_default, is_joystick, parse_button_event},
+    ui::common::{AppEvent, ToWebViewEvent},
 };
 use evdev::Device as EvdevDevice;
 use std::sync::{
@@ -8,15 +9,17 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 use std::{collections::HashMap, path::PathBuf, thread, time::Duration};
+use tao::event_loop::EventLoopProxy;
 use udev::{Enumerator, EventType, MonitorBuilder, MonitorSocket};
 
 pub struct GamepadMonitor {
     gamepads: HashMap<PathBuf, AppGamepad>,
     udev_monitor: MonitorSocket,
+    ui_loop_proxy: EventLoopProxy<AppEvent>,
 }
 
 impl GamepadMonitor {
-    fn new() -> Result<GamepadMonitor, String> {
+    fn new(ui_loop_proxy: EventLoopProxy<AppEvent>) -> Result<GamepadMonitor, String> {
         let monitor: MonitorSocket = MonitorBuilder::new()
             .unwrap()
             .match_subsystem("input")
@@ -27,6 +30,7 @@ impl GamepadMonitor {
         Ok(GamepadMonitor {
             gamepads: HashMap::new(),
             udev_monitor: monitor,
+            ui_loop_proxy,
         })
     }
 
@@ -117,7 +121,13 @@ impl GamepadMonitor {
                 let btn = parse_button_event(ev);
 
                 match btn {
-                    Some(button) => println!("Pressed {:#?}", button),
+                    Some(button_event) => {
+                        let _ = self
+                            .ui_loop_proxy
+                            .send_event(AppEvent::ForwardToWebViewEvent(
+                                ToWebViewEvent::AppGamepadButtonEvent(button_event),
+                            ));
+                    }
                     None => {}
                 }
             }
@@ -133,14 +143,20 @@ impl GamepadMonitor {
     }
 }
 
-fn _gamepad_monitor_worker_main(stop_signal: Arc<AtomicBool>) -> Result<(), String> {
-    let mut gamepad_monitor = GamepadMonitor::new()?;
+fn _gamepad_monitor_worker_main(
+    stop_signal: Arc<AtomicBool>,
+    ui_proxy: EventLoopProxy<AppEvent>,
+) -> Result<(), String> {
+    let mut gamepad_monitor = GamepadMonitor::new(ui_proxy)?;
     gamepad_monitor.scan_refresh_devices()?;
     gamepad_monitor.main_poll(stop_signal);
 
     Ok(())
 }
 
-pub fn gamepad_monitor_worker_main(stop_signal: Arc<AtomicBool>) {
-    let _ = _gamepad_monitor_worker_main(stop_signal);
+pub fn gamepad_monitor_worker_main(
+    stop_signal: Arc<AtomicBool>,
+    ui_proxy: EventLoopProxy<AppEvent>,
+) {
+    let _ = _gamepad_monitor_worker_main(stop_signal, ui_proxy);
 }

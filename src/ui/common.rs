@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use wry::WebView;
 
-use crate::gamepad::AppGamepadButton;
+use crate::gamepad::AppGamepadButtonEvent;
 
 pub const UI_TITLE_NAME: &str = "GridLaunch";
 pub const UI_INITIAL_SIZE_WIDTH_PX: f64 = 1280.0;
@@ -15,19 +15,16 @@ pub enum FromWebViewEvent {
 }
 
 // Events generated to be handled for the main loop
-#[derive(Debug, Clone, Deserialize)]
-#[serde(tag = "type", content = "event")]
+#[derive(Debug, Clone)]
 pub enum AppEvent {
     FromWebViewEvent(FromWebViewEvent),
+    ForwardToWebViewEvent(ToWebViewEvent),
 }
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
 pub enum ToWebViewEvent {
-    GamepadButtonPressed {
-        button: AppGamepadButton,
-        release: bool,
-    },
+    AppGamepadButtonEvent(AppGamepadButtonEvent),
 }
 
 pub fn send_event_to_webview(webview: &WebView, ev: &ToWebViewEvent) {

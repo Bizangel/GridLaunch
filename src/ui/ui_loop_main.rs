@@ -2,15 +2,16 @@ use std::{
     sync::{Arc, atomic::AtomicBool},
     thread::JoinHandle,
 };
-use tao::event_loop::EventLoopBuilder;
+use tao::event_loop::{EventLoopBuilder, EventLoopProxy};
 use wry::http::Request;
 
 use crate::ui::{
-    common::AppEvent, handle_main_loop_event::handle_main_loop_event,
+    common::{AppEvent, FromWebViewEvent},
+    handle_main_loop_event::handle_main_loop_event,
     window_builder::build_window_with_webview,
 };
 
-type WorkerThreadMain = fn(Arc<AtomicBool>);
+type WorkerThreadMain = fn(Arc<AtomicBool>, EventLoopProxy<AppEvent>);
 
 pub fn ui_loop_main(workers: Vec<WorkerThreadMain>) -> Result<(), String> {
     let event_loop = EventLoopBuilder::<AppEvent>::with_user_event().build();
@@ -18,9 +19,9 @@ pub fn ui_loop_main(workers: Vec<WorkerThreadMain>) -> Result<(), String> {
     let worker_stop_signal = Arc::new(AtomicBool::new(false));
 
     let webview_ipc_handler = move |req: Request<String>| {
-        match serde_json::from_str::<AppEvent>(req.body()) {
+        match serde_json::from_str::<FromWebViewEvent>(req.body()) {
             Ok(ipc_req) => {
-                let _ = event_proxy.send_event(ipc_req);
+                let _ = event_proxy.send_event(AppEvent::FromWebViewEvent(ipc_req));
             }
             Err(err) => eprintln!("Unrecognized Event from Webview: {}", err),
         };
@@ -29,8 +30,9 @@ pub fn ui_loop_main(workers: Vec<WorkerThreadMain>) -> Result<(), String> {
     let mut worker_threads: Vec<JoinHandle<()>> = workers
         .into_iter()
         .map(|workmain| {
+            let thread_proxy = event_loop.create_proxy();
             let stop_signal = Arc::clone(&worker_stop_signal);
-            return std::thread::spawn(move || workmain(stop_signal));
+            return std::thread::spawn(move || workmain(stop_signal, thread_proxy));
         })
         .collect();
 

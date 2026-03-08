@@ -3,13 +3,6 @@ import './App.css'
 import { sendIPCEvent } from './ipc/common'
 import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
 
-type LaunchRequestedEvent = {
-  type: 'FromWebViewEvent',
-  event: {
-    client: string
-  }
-}
-
 function App() {
   const [count, setCount] = useState(0)
 
@@ -18,7 +11,7 @@ function App() {
     sendIPCEvent({type: 'LaunchRequested'})
   }, [])
 
-  useWebViewEventHandler('GamepadButtonPressed', (ev) => {
+  useWebViewEventHandler('AppGamepadButtonEvent', (ev) => {
     console.log("button pressed: ", ev)
   })
 

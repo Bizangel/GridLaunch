@@ -21,10 +21,10 @@ pub enum AppGamepadButton {
     DpadDown,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize)]
 pub struct AppGamepadButtonEvent {
-    button: AppGamepadButton,
-    release: bool,
+    pub button: AppGamepadButton,
+    pub release: bool,
 }
 
 pub fn parse_button_event(event: InputEvent) -> Option<AppGamepadButtonEvent> {

@@ -1,4 +1,7 @@
-use crate::ui::{common::AppEvent, handle_window_event::handle_window_event};
+use crate::ui::{
+    common::{AppEvent, send_event_to_webview},
+    handle_window_event::handle_window_event,
+};
 use std::{
     sync::{Arc, atomic::AtomicBool},
     thread::JoinHandle,
@@ -27,6 +30,9 @@ pub fn handle_main_loop_event(
         ),
         Event::UserEvent(event) => match event {
             // handle your custom UIEvent
+            AppEvent::ForwardToWebViewEvent(event) => {
+                let _ = send_event_to_webview(&webview.borrow(), &event);
+            }
             _ => println!("event: {:#?}", event),
         },
         _ => {}
