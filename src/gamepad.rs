@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use evdev::InputEvent;
 use evdev::{AbsoluteAxisCode, EventSummary, KeyCode};
 use serde::Serialize;
@@ -21,13 +23,15 @@ pub enum AppGamepadButton {
     DpadDown,
 }
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct AppGamepadButtonEvent {
     pub button: AppGamepadButton,
     pub release: bool,
+    pub gamepad_name: String,
+    pub gamepad_devpath: PathBuf,
 }
 
-pub fn parse_button_event(event: InputEvent) -> Option<AppGamepadButtonEvent> {
+pub fn parse_button_event(event: InputEvent) -> Option<(AppGamepadButton, bool)> {
     match event.destructure() {
         EventSummary::Key(_, code, val) => {
             let button = match code {
@@ -44,33 +48,18 @@ pub fn parse_button_event(event: InputEvent) -> Option<AppGamepadButtonEvent> {
                 _ => return None,
             };
 
-            Some(AppGamepadButtonEvent {
-                button,
-                release: val == 0,
-            })
+            Some((button, val == 0))
         }
 
         EventSummary::AbsoluteAxis(_, AbsoluteAxisCode::ABS_HAT0X, val) => match val {
-            -1 => Some(AppGamepadButtonEvent {
-                button: AppGamepadButton::DpadLeft,
-                release: false,
-            }),
-            1 => Some(AppGamepadButtonEvent {
-                button: AppGamepadButton::DpadRight,
-                release: false,
-            }),
+            -1 => Some((AppGamepadButton::DpadLeft, false)),
+            1 => Some((AppGamepadButton::DpadRight, false)),
             _ => None,
         },
 
         EventSummary::AbsoluteAxis(_, AbsoluteAxisCode::ABS_HAT0Y, val) => match val {
-            -1 => Some(AppGamepadButtonEvent {
-                button: AppGamepadButton::DpadUp,
-                release: false,
-            }),
-            1 => Some(AppGamepadButtonEvent {
-                button: AppGamepadButton::DpadDown,
-                release: false,
-            }),
+            -1 => Some((AppGamepadButton::DpadUp, false)),
+            1 => Some((AppGamepadButton::DpadDown, false)),
             _ => None,
         },
 

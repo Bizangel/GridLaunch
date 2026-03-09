@@ -1,6 +1,8 @@
 use crate::{
     common::AppGamepad,
-    gamepad::{get_device_name_with_unk_default, is_joystick, parse_button_event},
+    gamepad::{
+        AppGamepadButtonEvent, get_device_name_with_unk_default, is_joystick, parse_button_event,
+    },
     wry_ui_helper::stop_signal::StopSignal,
 };
 
@@ -116,16 +118,18 @@ impl GamepadMonitor {
             };
 
             for ev in events {
-                let btn = parse_button_event(ev);
+                let Some((btn, release)) = parse_button_event(ev) else {
+                    continue;
+                };
 
-                match btn {
-                    Some(button_event) => {
-                        let _ = ui_proxy.send_event(GridLaunchEvent::ForwardToWebViewEvent(
-                            ToWebViewEvent::AppGamepadButtonEvent(button_event),
-                        ));
-                    }
-                    None => {}
-                }
+                let _ = ui_proxy.send_event(GridLaunchEvent::ForwardToWebViewEvent(
+                    ToWebViewEvent::AppGamepadButtonEvent(AppGamepadButtonEvent {
+                        button: btn,
+                        release: release,
+                        gamepad_name: gamepad.name.clone(),
+                        gamepad_devpath: gamepad.devnode.clone(),
+                    }),
+                ));
             }
         }
     }
@@ -150,6 +154,9 @@ fn _gamepad_monitor_worker_main(
     Ok(())
 }
 
-pub fn gamepad_monitor_worker_main(stop_signal: StopSignal, ui_proxy: &EventLoopProxy<GridLaunchEvent>) {
+pub fn gamepad_monitor_worker_main(
+    stop_signal: StopSignal,
+    ui_proxy: &EventLoopProxy<GridLaunchEvent>,
+) {
     let _ = _gamepad_monitor_worker_main(stop_signal, ui_proxy);
 }
