@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct LaunchRequestedEvent {
-    splitscreen_type: String,
-    users: Vec<String>,
-    gamepads: Vec<String>,
+    pub splitscreen_type: String,
+    pub users: Vec<String>,
+    pub gamepads: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

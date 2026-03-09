@@ -43,12 +43,12 @@ function App() {
   useWebViewEventHandler('AppGamepadButtonEvent', useCallback((ev) => {
 
 
-    if (ev.button == "X") {
+    if (ev.button == "DpadLeft") {
       const player: GamepadPlayer = { name: "game-user", dev_path: ev.gamepad_devpath }
       assign_player(player, 0)
     }
 
-    if (ev.button == "Y") {
+    if (ev.button == "DpadRight") {
       const player: GamepadPlayer = { name: "game-user-giluxe", dev_path: ev.gamepad_devpath }
       assign_player(player, 1)
     }
@@ -59,7 +59,7 @@ function App() {
 
       <div className='long-container'>
         <div className='gamepad-entry'>
-          Controller1 Left - Press Y
+          Controller1
 
           <div className='gamepad-name'>
             <p> {players[0]?.name} </p>
@@ -67,7 +67,7 @@ function App() {
           </div>
         </div>
         <div className='gamepad-entry'>
-          Controller2 Left - Press X
+          Controller2
           <div className='gamepad-name'>
             <p> {players[1]?.name} </p>
             <p> {players[1]?.dev_path} </p>
