@@ -1,10 +1,12 @@
+use crate::events::LaunchRequestedEvent;
+use std::env;
+use std::fs;
 use std::io::{BufRead, BufReader};
+use std::path::Path;
 use std::process::{Command, Stdio};
 use std::thread;
 use x11rb::connection::Connection;
 use x11rb::protocol::randr::ConnectionExt;
-
-use crate::events::LaunchRequestedEvent;
 
 #[derive(Debug)]
 pub struct Monitor {
@@ -114,10 +116,59 @@ fn x11_get_main_monitor() -> Option<Monitor> {
     })
 }
 
+pub fn list_x11_displays() -> Vec<String> {
+    let socket_dir = Path::new("/tmp/.X11-unix");
+    let mut displays = Vec::new();
+
+    if let Ok(entries) = fs::read_dir(socket_dir) {
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+
+            if name.starts_with('X') {
+                if let Ok(num) = name[1..].parse::<u32>() {
+                    displays.push(format!(":{}", num));
+                }
+            }
+        }
+    }
+
+    displays.sort();
+    displays
+}
+
+pub fn find_user_game_display(user: &str) -> Option<String> {
+    // Current active display to exclude
+    let current_display = env::var("DISPLAY").ok();
+
+    for display in list_x11_displays() {
+        if Some(&display) == current_display.as_ref() {
+            continue;
+        }
+
+        let output = Command::new("/home/arcanzu/scripts/gaming/run_as_user_gaming.sh")
+            .arg(user)
+            .args(["env", &format!("DISPLAY={}", display), "xprop", "-root"])
+            .output();
+
+        if let Ok(out) = output {
+            if out.status.success() {
+                return Some(display.clone());
+            }
+        }
+    }
+
+    None
+}
+
+pub fn launch_gamepad2key() {
+    // todo launch remapper for program
+}
+
 pub fn spawn_games(event: LaunchRequestedEvent) {
     let mut handles = Vec::new();
 
-    let users = event.users;
+    // let users = event.users;
     let gamepads = event.gamepads;
 
     let Some(monitor) = x11_get_main_monitor() else {
@@ -129,7 +180,7 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
     let instance_height = monitor.height / 2;
     let instance_width = monitor.width;
 
-    for (i, user) in users.into_iter().enumerate() {
+    for (i, user) in event.users.iter().enumerate() {
         let other_gamepads: Vec<String> = gamepads
             .iter()
             .enumerate()
@@ -137,9 +188,19 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
             .map(|(_, g)| g.clone())
             .collect();
 
+        let thread_user = user.clone();
         handles.push(thread::spawn(move || {
-            launch_game(user, other_gamepads, instance_width, instance_height);
+            launch_game(thread_user, other_gamepads, instance_width, instance_height);
         }));
+    }
+    std::thread::sleep(std::time::Duration::from_millis(100));
+
+    for user in event.users.iter() {
+        let display = find_user_game_display(&user);
+        println!("Found display {:#?} for user {}", display, user);
+        // handles.push(thread::spawn(move || {
+        //     launch_game(thread_user, other_gamepads, instance_width, instance_height);
+        // }));
     }
 
     for handle in handles {
