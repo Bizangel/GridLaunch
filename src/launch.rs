@@ -1,10 +1,10 @@
 use crate::events::LaunchRequestedEvent;
+use crate::game_instance::GameInstance;
+use crate::remapper_thread::RemapperThread;
 use std::env;
 use std::fs;
-use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::process::{Command, Stdio};
-use std::thread;
+use std::process;
 use x11rb::connection::Connection;
 use x11rb::protocol::randr::ConnectionExt;
 
@@ -13,64 +13,6 @@ pub struct Monitor {
     name: String,
     width: u32,
     height: u32,
-}
-
-fn launch_game(runas: String, gamepads_to_hide: Vec<String>, width: u32, height: u32) {
-    unsafe {
-        std::env::set_var("SDL_VIDEODRIVER", "x11");
-    }
-
-    let instance_width = width.to_string();
-    let instance_height = height.to_string();
-    let pre_bwrap_args = vec![
-        "gamescope",
-        "-w",
-        &instance_width,
-        "-h",
-        &instance_height,
-        "--",
-        "bwrap",
-        "--die-with-parent",
-        "--dev-bind",
-        "/",
-        "/",
-    ];
-
-    let bwrap_hide_args: Vec<_> = gamepads_to_hide
-        .iter()
-        .flat_map(|x| ["--bind", "/dev/null", &x])
-        .collect();
-
-    let actual_args = vec!["steam", "-console", "steam://open/bigpicture"];
-
-    let mut child = Command::new("/home/arcanzu/scripts/gaming/run_as_user_gaming.sh")
-        .arg(runas)
-        .args(pre_bwrap_args)
-        .args(bwrap_hide_args)
-        .args(actual_args)
-        .env("ENABLE_GAMESCOPE_WSI", "0")
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("failed to execute process");
-
-    let stdout = BufReader::new(child.stdout.take().unwrap());
-    let stderr = BufReader::new(child.stderr.take().unwrap());
-
-    let out_handle = thread::spawn(move || {
-        for line in stdout.lines() {
-            println!("{}", line.unwrap());
-        }
-    });
-    let err_handle = thread::spawn(move || {
-        for line in stderr.lines() {
-            eprintln!("{}", line.unwrap());
-        }
-    });
-
-    child.wait().unwrap();
-    out_handle.join().unwrap();
-    err_handle.join().unwrap();
 }
 
 fn x11_get_main_monitor() -> Option<Monitor> {
@@ -146,7 +88,7 @@ pub fn find_user_game_display(user: &str) -> Option<String> {
             continue;
         }
 
-        let output = Command::new("/home/arcanzu/scripts/gaming/run_as_user_gaming.sh")
+        let output = process::Command::new("/home/arcanzu/scripts/gaming/run_as_user_gaming.sh")
             .arg(user)
             .args(["env", &format!("DISPLAY={}", display), "xprop", "-root"])
             .output();
@@ -161,12 +103,9 @@ pub fn find_user_game_display(user: &str) -> Option<String> {
     None
 }
 
-pub fn launch_gamepad2key() {
-    // todo launch remapper for program
-}
-
 pub fn spawn_games(event: LaunchRequestedEvent) {
-    let mut handles = Vec::new();
+    let mut instances: Vec<GameInstance> = Vec::new();
+    let mut remapper_threads: Vec<RemapperThread> = Vec::new();
 
     // let users = event.users;
     let gamepads = event.gamepads;
@@ -181,30 +120,43 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
     let instance_width = monitor.width;
 
     for (i, user) in event.users.iter().enumerate() {
-        let other_gamepads: Vec<String> = gamepads
-            .iter()
-            .enumerate()
-            .filter(|(idx, _)| *idx != i)
-            .map(|(_, g)| g.clone())
-            .collect();
-
-        let thread_user = user.clone();
-        handles.push(thread::spawn(move || {
-            launch_game(thread_user, other_gamepads, instance_width, instance_height);
-        }));
+        instances.push(GameInstance::launch(
+            &user,
+            gamepads
+                .iter()
+                .enumerate()
+                .filter(|(idx, _)| *idx != i)
+                .map(|(_, g)| g.as_str()),
+            instance_width,
+            instance_height,
+        ));
     }
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    std::thread::sleep(std::time::Duration::from_millis(1000));
 
     for user in event.users.iter() {
-        let display = find_user_game_display(&user);
-        println!("Found display {:#?} for user {}", display, user);
-        // handles.push(thread::spawn(move || {
-        //     launch_game(thread_user, other_gamepads, instance_width, instance_height);
-        // }));
+        let Some(display) = find_user_game_display(&user) else {
+            continue;
+        };
+
+        if user != "game-user" {
+            continue;
+        }
+
+        remapper_threads.push(RemapperThread::new(
+            &user,
+            &display,
+            "/home/game-user/terrariasplitscreenmapping.cfg",
+        ));
     }
 
-    for handle in handles {
-        handle.join().unwrap();
+    for instance in instances {
+        instance
+            .join()
+            .expect("Error waiting for game instances to stop");
+    }
+
+    for handle in remapper_threads.drain(..) {
+        handle.stop().expect("Error stopping remapper threads");
     }
 
     println!("All handles returned")

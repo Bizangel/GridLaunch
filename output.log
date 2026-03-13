@@ -1,0 +1,18 @@
+Added controller: 8BitDo Ultimate Wireless / Pro 2 Wired Controller
+Added controller: Keychron  Keychron Link 
+Added controller: Xbox Wireless Controller
+Executing: /home/arcanzu/scripts/gaming/run_as_user_gaming.sh game-user gamescope -w 3840 -h 1080 -- bwrap --die-with-parent --dev-bind / / --bind /dev/null /dev/input/event31 steam -console steam://open/bigpicture
+Executing: /home/arcanzu/scripts/gaming/run_as_user_gaming.sh game-user-giluxe gamescope -w 3840 -h 1080 -- bwrap --die-with-parent --dev-bind / / --bind /dev/null /dev/input/event256 steam -console steam://open/bigpicture
+[GAME game-user]localuser:game-user being added to access control list
+[GAME game-user-giluxe]localuser:game-user-giluxe being added to access control list
+Executing: /home/arcanzu/scripts/gaming/run_as_user_gaming.sh game-user gamepad2key --display :2 /home/game-user/terrariasplitscreenmapping.cfg
+[GAMEPAD2KEY game-user]localuser:game-user being added to access control list
+Waiting on game-user game instance to exit
+[GAMEPAD2KEY game-user]Waiting for gamepad
+[GAMEPAD2KEY game-user]Controller added at index 0
+[GAMEPAD2KEY game-user]Opened controller: "8BitDo Ultimate Wireless / Pro 2 Wired Controller" (instance id: 0)
+[GAMEPAD2KEY game-user]Controller added at index 1
+[GAMEPAD2KEY game-user]Opened controller: "Xbox 360 Controller" (instance id: 1)
+game-user game instance exited
+Waiting on game-user-giluxe game instance to exit
+game-user-giluxe game instance exited
