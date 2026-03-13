@@ -131,9 +131,9 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
             instance_height,
         ));
     }
-    std::thread::sleep(std::time::Duration::from_millis(1000));
+    std::thread::sleep(std::time::Duration::from_secs(3));
 
-    for user in event.users.iter() {
+    for (i, user) in event.users.iter().enumerate() {
         let Some(display) = find_user_game_display(&user) else {
             continue;
         };
@@ -146,6 +146,11 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
             &user,
             &display,
             "/home/game-user/terrariasplitscreenmapping.cfg",
+            gamepads
+                .iter()
+                .enumerate()
+                .filter(|(idx, _)| *idx != i)
+                .map(|(_, g)| g.as_str()),
         ));
     }
 

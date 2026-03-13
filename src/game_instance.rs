@@ -34,7 +34,7 @@ impl GameInstance {
             "/",
             "/",
         ];
-        let bwrap_hide_args: Vec<_> = gamepads_to_hide
+        let bwrap_hide_args: Vec<&str> = gamepads_to_hide
             .into_iter()
             .flat_map(|x| ["--bind", "/dev/null", &x])
             .collect();

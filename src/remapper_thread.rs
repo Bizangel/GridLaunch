@@ -13,14 +13,24 @@ pub struct RemapperThread {
 }
 
 impl RemapperThread {
-    pub fn new(user: &str, display: &str, remap_config_path: &str) -> RemapperThread {
-        let args = vec![
-            &user,
-            "gamepad2key",
-            "--display",
-            display,
-            remap_config_path,
-        ];
+    pub fn new<'a>(
+        user: &str,
+        display: &str,
+        remap_config_path: &str,
+        gamepads_to_hide: impl IntoIterator<Item = &'a str>,
+    ) -> RemapperThread {
+        let bwrap_args = vec!["bwrap", "--die-with-parent", "--dev-bind", "/", "/"];
+        let gamepad2keyargs = vec!["gamepad2key", "--display", display, remap_config_path];
+        let bwrap_hide_args: Vec<&str> = gamepads_to_hide
+            .into_iter()
+            .flat_map(|x| ["--bind", "/dev/null", &x])
+            .collect();
+
+        let args: Vec<&str> = std::iter::once(user)
+            .chain(bwrap_args.into_iter())
+            .chain(bwrap_hide_args.into_iter())
+            .chain(gamepad2keyargs.into_iter())
+            .collect();
 
         let (child, stdout, stderr) = spawn_process_with_thread_readers(
             RUNAS_SCRIPT_PATH,
