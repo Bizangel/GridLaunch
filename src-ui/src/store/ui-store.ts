@@ -17,10 +17,18 @@ type Actions = {
   joinController: (controllerId: number) => void
   unjoinPlayer: (slotIdx: number) => void
   pickProfile: (profileId: number) => void
+  pickSide: (sideIndex: number) => void
   setPickerActive: (slotIdx: number) => void
 }
 
 const emptyPlayers: State['players'] = [null, null, null, null]
+
+function nextActiveIdx(players: State['players'], excludeIdx: number | null): number | null {
+  const picking = players.findIndex((p, i) => i !== excludeIdx && p?.state === 'picking')
+  if (picking !== -1) return picking
+  const pickingSide = players.findIndex((p, i) => i !== excludeIdx && p?.state === 'picking-side')
+  return pickingSide === -1 ? null : pickingSide
+}
 
 export const useUIState = create<State & Actions>((set) => ({
   phase: 'select-game',
@@ -36,16 +44,17 @@ export const useUIState = create<State & Actions>((set) => ({
     set({ phase: 'select-game', players: emptyPlayers, activePickerIdx: null }),
 
   toggleOrientation: () =>
-    set((s) => ({ splitOrientation: s.splitOrientation === 'horizontal' ? 'vertical' : 'horizontal' })),
+    set((s) => ({
+      splitOrientation: s.splitOrientation === 'horizontal' ? 'vertical' : 'horizontal',
+    })),
 
   joinController: (controllerId) =>
     set(
       produce((draft: State) => {
-        // Don't join if already joined
         if (draft.players.some((p) => p?.controllerId === controllerId)) return
         const slot = draft.players.findIndex((p) => p === null)
         if (slot === -1) return
-        draft.players[slot] = { controllerId, profileId: null, state: 'picking' }
+        draft.players[slot] = { controllerId, profileId: null, sideIndex: null, state: 'picking' }
         draft.activePickerIdx = slot
       }),
     ),
@@ -55,9 +64,7 @@ export const useUIState = create<State & Actions>((set) => ({
       produce((draft: State) => {
         draft.players[slotIdx] = null
         if (draft.activePickerIdx === slotIdx) {
-          // Hand focus to next picking player, if any
-          const next = draft.players.findIndex((p, i) => i !== slotIdx && p?.state === 'picking')
-          draft.activePickerIdx = next === -1 ? null : next
+          draft.activePickerIdx = nextActiveIdx(draft.players, slotIdx)
         }
       }),
     ),
@@ -69,10 +76,20 @@ export const useUIState = create<State & Actions>((set) => ({
         const slot = draft.players[draft.activePickerIdx]
         if (!slot) return
         slot.profileId = profileId
+        slot.state = 'picking-side'
+        // activePickerIdx stays — same player now picks their side
+      }),
+    ),
+
+  pickSide: (sideIndex) =>
+    set(
+      produce((draft: State) => {
+        if (draft.activePickerIdx === null) return
+        const slot = draft.players[draft.activePickerIdx]
+        if (!slot) return
+        slot.sideIndex = sideIndex
         slot.state = 'ready'
-        // Advance focus to next picking player
-        const next = draft.players.findIndex((p, i) => i !== draft.activePickerIdx && p?.state === 'picking')
-        draft.activePickerIdx = next === -1 ? null : next
+        draft.activePickerIdx = nextActiveIdx(draft.players, draft.activePickerIdx)
       }),
     ),
 
@@ -83,6 +100,7 @@ export const useUIState = create<State & Actions>((set) => ({
         if (!slot) return
         slot.state = 'picking'
         slot.profileId = null
+        slot.sideIndex = null
         draft.activePickerIdx = slotIdx
       }),
     ),

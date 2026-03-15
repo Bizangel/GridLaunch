@@ -1,7 +1,7 @@
 import { useUIState } from './store/ui-store'
 import { TopBar } from './components/TopBar'
 import { GameGrid } from './components/GameGrid'
-import { ConfirmBar } from './components/Confirmbar'
+import { ConfirmBar } from './components/ConfirmBar'
 import { Sidebar } from './components/Sidebar'
 import { HintBar } from './components/Hintbar'
 import styles from './App.module.css'

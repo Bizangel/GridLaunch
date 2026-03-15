@@ -26,5 +26,6 @@ export type Profile = {
 export type PlayerSlot = {
   controllerId: number
   profileId: number | null
-  state: 'picking' | 'ready'
+  sideIndex: number | null
+  state: 'picking' | 'picking-side' | 'ready'
 } | null

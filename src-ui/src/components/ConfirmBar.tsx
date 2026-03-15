@@ -1,6 +1,6 @@
 import { useUIState } from '../store/ui-store'
 import { GAMES } from '../data'
-import styles from './Confirmbar.module.css'
+import styles from './ConfirmBar.module.css'
 
 export function ConfirmBar() {
   const selectedGameId = useUIState((s) => s.selectedGameId)

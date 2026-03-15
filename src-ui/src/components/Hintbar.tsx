@@ -12,14 +12,21 @@ export function HintBar() {
   const ready = players.filter((p) => p?.state === 'ready')
   const openSlots = 4 - joined.length
 
+  const activePicker = activePickerIdx !== null ? players[activePickerIdx] : null
+  const isPickingProfile = activePicker?.state === 'picking'
+  const isPickingSide = activePicker?.state === 'picking-side'
+
   const hints: Hint[] = []
 
   if (phase === 'select-game') {
     hints.push({ key: '↑↓←→', label: 'browse' })
     hints.push({ key: 'A', label: 'confirm game' })
   } else {
-    if (activePickerIdx !== null) {
+    if (isPickingProfile) {
       hints.push({ key: '↑↓', label: 'pick profile' })
+      hints.push({ key: 'A', label: 'confirm' })
+    } else if (isPickingSide) {
+      hints.push({ key: '← →', label: 'pick side' })
       hints.push({ key: 'A', label: 'confirm' })
     }
     hints.push({ key: 'B', label: joined.length > 0 ? 'unjoin / change game' : 'change game' })

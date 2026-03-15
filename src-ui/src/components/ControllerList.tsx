@@ -85,6 +85,7 @@ export function ControllerList() {
               >
                 {!player && 'A to join'}
                 {player?.state === 'picking' && `${label} · picking`}
+                {player?.state === 'picking-side' && `${label} · side`}
                 {player?.state === 'ready' && `${label} · ready`}
               </span>
             </div>
