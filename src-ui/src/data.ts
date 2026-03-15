@@ -8,7 +8,10 @@ export const GAMES: Game[] = [
   { id: 5, name: 'Celeste',              description: 'Precision platformer',     maxPlayers: 2, coverColor: '#1e1220' },
   { id: 6, name: "Don't Starve Together", description: 'Survival sandbox',        maxPlayers: 4, coverColor: '#1a1508' },
   { id: 7, name: 'Terraria',             description: 'Sandbox adventure',        maxPlayers: 4, coverColor: '#0f1f1f' },
-  { id: 8, name: 'Cuphead',             description: 'Run and gun action',        maxPlayers: 2, coverColor: '#1f1020' },
+  { id: 8, name: 'Cuphead', description: 'Run and gun action', maxPlayers: 2, coverColor: '#1f1020' },
+  { id: 9, name: 'Cuphead 2', description: 'Run and gun action', maxPlayers: 4, coverColor: '#1f1021' },
+  { id: 10, name: 'Cuphead 3', description: 'Run and gun action', maxPlayers: 4, coverColor: '#1f1022' },
+
 ]
 
 // export const CONTROLLERS: Controller[] = [

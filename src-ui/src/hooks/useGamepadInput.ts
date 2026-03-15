@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useUIState } from '../store/ui-store'
 import { GAMES, PROFILES } from '../data'
 import { launchSession } from '../ipc/launchSession'
+import { gridNavRef } from './gridNavRef'
 import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from '../types'
 
 export function useGamepadInput() {
@@ -22,7 +23,6 @@ export function useGamepadInput() {
   const unjoinPlayer      = useUIState((s) => s.unjoinPlayer)
   const pickProfile       = useUIState((s) => s.pickProfile)
   const pickSide          = useUIState((s) => s.pickSide)
-  const moveGameCursor    = useUIState((s) => s.moveGameCursor)
   const moveProfileCursor = useUIState((s) => s.moveProfileCursor)
   const moveSideCursor    = useUIState((s) => s.moveSideCursor)
 
@@ -46,13 +46,11 @@ export function useGamepadInput() {
     // Any controller can navigate — no identity check needed here
 
     if (phase === 'select-game') {
-      if (button === 'DpadRight' || button === 'DpadDown') {
-        moveGameCursor(1, GAMES.length)
-      } else if (button === 'DpadLeft' || button === 'DpadUp') {
-        moveGameCursor(-1, GAMES.length)
-      } else if (button === 'A') {
-        confirmGame(GAMES[gameCursor].id)
-      }
+      if (button === 'DpadRight') gridNavRef.navigate?.('right')
+      if (button === 'DpadLeft')  gridNavRef.navigate?.('left')
+      if (button === 'DpadDown')  gridNavRef.navigate?.('down')
+      if (button === 'DpadUp')    gridNavRef.navigate?.('up')
+      if (button === 'A')         confirmGame(GAMES[gameCursor].id)
       return
     }
 
@@ -180,7 +178,7 @@ export function useGamepadInput() {
   }, [
     phase, players, activePickerIdx, gameCursor, profileCursor, sideCursor,
     confirmGame, changeGame, joinController, unjoinByDevPath, unjoinPlayer,
-    pickProfile, pickSide, moveGameCursor, moveProfileCursor, moveSideCursor,
+    pickProfile, pickSide, moveProfileCursor, moveSideCursor,
   ])
 
   return { handleButtonEvent, handleGamepadsUpdate }

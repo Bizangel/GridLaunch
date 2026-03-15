@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
-
 import type { Controller, Phase, PlayerSlot, SplitOrientation } from '../types'
 
 type State = {
@@ -26,7 +25,7 @@ type Actions = {
   pickProfile: (profileId: number) => void
   pickSide: (sideIndex: number) => void
   setPickerActive: (slotIdx: number) => void
-  moveGameCursor: (delta: number, gameCount: number) => void
+  setGameCursor: (index: number) => void
   moveProfileCursor: (delta: number, profileCount: number) => void
   moveSideCursor: (delta: number, sideCount: number) => void
   startLaunching: () => void
@@ -162,10 +161,8 @@ export const useUIState = create<State & Actions>((set) => ({
       }),
     ),
 
-  moveGameCursor: (delta, gameCount) =>
-    set((s) => ({
-      gameCursor: (s.gameCursor + delta + gameCount) % gameCount,
-    })),
+  setGameCursor: (index) =>
+    set({ gameCursor: index }),
 
   moveProfileCursor: (delta, profileCount) =>
     set((s) => ({

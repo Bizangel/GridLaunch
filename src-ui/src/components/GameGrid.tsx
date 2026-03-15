@@ -1,17 +1,27 @@
+import { useEffect } from 'react'
 import { useUIState } from '../store/ui-store'
 import { GAMES } from '../data'
+import { useGridNav } from '../hooks/useGridNav'
+import { gridNavRef } from '../hooks/gridNavRef'
 import styles from './GameGrid.module.css'
 
 export function GameGrid() {
-  const phase        = useUIState((s) => s.phase)
+  const phase          = useUIState((s) => s.phase)
   const selectedGameId = useUIState((s) => s.selectedGameId)
-  const gameCursor   = useUIState((s) => s.gameCursor)
-  const confirmGame  = useUIState((s) => s.confirmGame)
-  const moveGameCursor = useUIState((s) => s.moveGameCursor)
+  const gameCursor     = useUIState((s) => s.gameCursor)
+  const confirmGame    = useUIState((s) => s.confirmGame)
+  const setGameCursor  = useUIState((s) => s.setGameCursor)
 
-  const isPhase1 = phase === 'select-game'
-  // gameCursor is an index into GAMES; derive the focused game id from it
+  const isPhase1   = phase === 'select-game'
   const focusedGame = isPhase1 ? GAMES[gameCursor] : null
+
+  const { setCardRef, navigate } = useGridNav(GAMES.length, gameCursor, setGameCursor)
+
+  // Register navigate into the shared ref so the gamepad hook can call it
+  useEffect(() => {
+    gridNavRef.navigate = navigate
+    return () => { gridNavRef.navigate = null }
+  }, [navigate])
 
   return (
     <div className={styles.grid}>
@@ -23,6 +33,7 @@ export function GameGrid() {
         return (
           <div
             key={game.id}
+            ref={setCardRef(idx)}
             className={[
               styles.card,
               isSelected && styles.selected,
@@ -31,8 +42,7 @@ export function GameGrid() {
             ].filter(Boolean).join(' ')}
             onClick={() => {
               if (!isPhase1) return
-              // Click moves cursor to this card
-              moveGameCursor(idx - gameCursor, GAMES.length)
+              setGameCursor(idx)
             }}
             onDoubleClick={() => {
               if (!isPhase1) return
