@@ -13,3 +13,8 @@ TODO
 - Generic window allocation system. -> Should be allowed to be another script or something else.
 
 - Begin on a very simple "handle system". -> User chooses what he wants to launch.
+
+## Licenses
+
+This project includes portions of code borrowed from [Partydeck](https://github.com/partydeck/partydeck)
+Mainly related to window handling logic and x11 monitor snippets.
