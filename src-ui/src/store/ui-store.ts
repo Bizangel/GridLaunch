@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
+import { GAMES } from '../data'
 import type { Controller, Phase, PlayerSlot, SplitOrientation } from '../types'
 
 type State = {
@@ -56,7 +57,15 @@ export const useUIState = create<State & Actions>((set) => ({
     set({ phase: 'join-players', selectedGameId: gameId }),
 
   changeGame: () =>
-    set({ phase: 'select-game', selectedGameId: null, players: emptyPlayers, activePickerIdx: null, gameCursor: 0 }),
+    set((s) => ({
+      phase:           'select-game',
+      selectedGameId:  null,
+      players:         emptyPlayers,
+      activePickerIdx: null,
+      gameCursor:      s.selectedGameId !== null
+        ? GAMES.findIndex((g) => g.id === s.selectedGameId)
+        : 0,
+    })),
 
   toggleOrientation: () =>
     set((s) => ({
