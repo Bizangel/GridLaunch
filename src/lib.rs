@@ -1,8 +1,10 @@
 pub mod common;
+pub mod event_handler;
 pub mod events;
 pub mod game_instance;
 pub mod gamepad;
 pub mod gamepad_monitor;
+pub mod ipc_handler;
 pub mod kwin_window_handling;
 pub mod launch;
 pub mod monitor;
