@@ -1,0 +1,77 @@
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 15, 20, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-md);
+    padding: var(--sp-xl) calc(var(--sp-xl) * 2);
+    background: var(--surf);
+    border: 1px solid var(--bdr2);
+    border-radius: var(--r-lg);
+    min-width: calc(var(--u) * 18);
+}
+
+.gameName {
+    font-family: var(--font-cond);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--tx);
+    text-transform: uppercase;
+}
+
+.status {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--p1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.track {
+    width: 100%;
+    height: calc(var(--u) * 0.2);
+    background: var(--dim);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    width: 40%;
+    background: var(--p1);
+    border-radius: 999px;
+    animation: sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes sweep {
+    0% {
+        transform: translateX(-100%);
+        width: 40%;
+    }
+
+    50% {
+        width: 60%;
+    }
+
+    100% {
+        transform: translateX(280%);
+        width: 40%;
+    }
+}
+
+.hint {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--mt);
+    letter-spacing: 0.06em;
+}

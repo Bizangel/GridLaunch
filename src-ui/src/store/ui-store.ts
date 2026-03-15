@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
+
 import type { Controller, Phase, PlayerSlot, SplitOrientation } from '../types'
 
 type State = {
@@ -28,6 +29,8 @@ type Actions = {
   moveGameCursor: (delta: number, gameCount: number) => void
   moveProfileCursor: (delta: number, profileCount: number) => void
   moveSideCursor: (delta: number, sideCount: number) => void
+  startLaunching: () => void
+  returnFromLaunch: () => void
 }
 
 const emptyPlayers: State['players'] = [null, null, null, null]
@@ -173,4 +176,20 @@ export const useUIState = create<State & Actions>((set) => ({
     set((s) => ({
       sideCursor: (s.sideCursor + delta + sideCount) % sideCount,
     })),
+
+  // Transition to launching — UI freezes, all input ignored
+  startLaunching: () =>
+    set({ phase: 'launching' }),
+
+  // Game session ended — full reset back to initial state
+  returnFromLaunch: () =>
+    set({
+      phase:          'select-game',
+      selectedGameId: null,
+      players:        emptyPlayers,
+      activePickerIdx: null,
+      gameCursor:     0,
+      profileCursor:  0,
+      sideCursor:     0,
+    }),
 }))

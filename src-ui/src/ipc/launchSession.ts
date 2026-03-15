@@ -25,4 +25,7 @@ export function launchSession() {
     gamepads:         readyPlayers.map((p) => p.devPath),
     users:            readyPlayers.map((p) => p.profile),
   })
+
+  // Freeze UI — all input is ignored until LaunchReturned fires
+  useUIState.getState().startLaunching()
 }

@@ -1,6 +1,6 @@
 export type SplitOrientation = 'horizontal' | 'vertical'
 
-export type Phase = 'select-game' | 'join-players'
+export type Phase = 'select-game' | 'join-players' | 'launching'
 
 export type Game = {
   id: number

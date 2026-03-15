@@ -9,20 +9,18 @@ import { GameGrid } from './components/GameGrid'
 import { ConfirmBar } from './components/ConfirmBar'
 import { Sidebar } from './components/Sidebar'
 import { HintBar } from './components/Hintbar'
+import { LaunchingOverlay } from './components/LaunchingOverlay'
 import styles from './App.module.css'
 import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from './types'
 
 function App() {
-  const phase = useUIState((s) => s.phase)
+  const phase           = useUIState((s) => s.phase)
+  const returnFromLaunch = useUIState((s) => s.returnFromLaunch)
   const { handleButtonEvent, handleGamepadsUpdate } = useGamepadInput()
 
   useOnWebviewLoaded(useCallback(() => {
     sendIPCEvent({ type: 'WebViewReady' })
   }, []))
-
-  useWebViewEventHandler("LaunchReturned", () => {
-    console.log("Launch returned")
-  })
 
   useWebViewEventHandler(
     'AppGamepadButtonEvent',
@@ -32,6 +30,14 @@ function App() {
   useWebViewEventHandler(
     'GamepadsUpdate',
     useCallback((ev: GamepadsUpdateEvent) => handleGamepadsUpdate(ev), [handleGamepadsUpdate]),
+  )
+
+  useWebViewEventHandler(
+    'LaunchReturned',
+    useCallback(() => {
+      console.log('Launch returned — resetting UI')
+      returnFromLaunch()
+    }, [returnFromLaunch]),
   )
 
   return (
@@ -49,6 +55,8 @@ function App() {
       </div>
 
       <HintBar />
+
+      {phase === 'launching' && <LaunchingOverlay />}
     </div>
   )
 }

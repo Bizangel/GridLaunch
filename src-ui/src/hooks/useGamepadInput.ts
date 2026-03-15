@@ -37,6 +37,9 @@ export function useGamepadInput() {
   const handleButtonEvent = useCallback((ev: GamepadButtonPressedEvent) => {
     if (ev.release) return
 
+    // All input is frozen while the game session is running
+    if (phase === 'launching') return
+
     const { button, gamepad_devpath: devPath } = ev
 
     // ── Phase: select-game ───────────────────────────────────────────────
