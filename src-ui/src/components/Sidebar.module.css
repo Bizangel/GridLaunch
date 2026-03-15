@@ -1,0 +1,65 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--bdr2);
+    background: var(--surf);
+    min-height: 0;
+}
+
+.lockMsg {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--mt);
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--bdr);
+    letter-spacing: 0.06em;
+}
+
+.section {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--bdr);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sectionTitle {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mt);
+}
+
+.launchArea {
+    padding: 12px 14px;
+    background: var(--surf);
+    flex-shrink: 0;
+}
+
+.launchBtn {
+    width: 100%;
+    padding: 9px;
+    border: none;
+    border-radius: 5px;
+    font-family: var(--font-cond);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--dim);
+    color: var(--mt);
+    cursor: not-allowed;
+    transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.launchBtnActive {
+    background: var(--p1);
+    color: #000;
+    cursor: pointer;
+}
+
+.launchBtnActive:hover {
+    opacity: 0.85;
+}

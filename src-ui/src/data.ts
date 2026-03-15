@@ -1,0 +1,29 @@
+import type { Game, Controller, Profile } from './types'
+
+export const GAMES: Game[] = [
+  { id: 1, name: 'Portal 2',             description: 'Co-op puzzle platformer', maxPlayers: 2, coverColor: '#1a2a1a' },
+  { id: 2, name: 'Stardew Valley',        description: 'Farm sim RPG',            maxPlayers: 4, coverColor: '#1a1a2a' },
+  { id: 3, name: 'Rocket League',         description: 'Vehicular soccer',        maxPlayers: 4, coverColor: '#2a1a1a' },
+  { id: 4, name: 'Hollow Knight',         description: 'Metroidvania action',     maxPlayers: 2, coverColor: '#15151f' },
+  { id: 5, name: 'Celeste',              description: 'Precision platformer',     maxPlayers: 2, coverColor: '#1e1220' },
+  { id: 6, name: "Don't Starve Together", description: 'Survival sandbox',        maxPlayers: 4, coverColor: '#1a1508' },
+  { id: 7, name: 'Terraria',             description: 'Sandbox adventure',        maxPlayers: 4, coverColor: '#0f1f1f' },
+  { id: 8, name: 'Cuphead',             description: 'Run and gun action',        maxPlayers: 2, coverColor: '#1f1020' },
+]
+
+export const CONTROLLERS: Controller[] = [
+  { id: 0, name: 'DualSense Edge',   devPath: '/dev/input/js0' },
+  { id: 1, name: 'Xbox Series X',    devPath: '/dev/input/js1' },
+  { id: 2, name: '8Bitdo Pro 2',     devPath: '/dev/input/js2' },
+  { id: 3, name: 'Steam Controller', devPath: '/dev/input/js3' },
+]
+
+export const PROFILES: Profile[] = [
+  { id: 0, name: 'Player One',   saveSlot: 'slot_1', initials: 'P1' },
+  { id: 1, name: 'Giluxe',       saveSlot: 'slot_4', initials: 'GX' },
+  { id: 2, name: 'Guest',        saveSlot: 'slot_0', initials: 'GU' },
+  { id: 3, name: 'Speedrunner',  saveSlot: 'slot_7', initials: 'SR' },
+]
+
+export const PLAYER_COLORS = ['#00e5a0', '#00bfff', '#ff6b6b', '#ffd166'] as const
+export const PLAYER_LABELS = ['P1', 'P2', 'P3', 'P4'] as const

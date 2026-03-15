@@ -1,0 +1,29 @@
+.launcher {
+    display: grid;
+    grid-template-rows: 48px 1fr 34px;
+    height: 100vh;
+    background: var(--bg);
+}
+
+.body {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.gamePane {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+}
+
+.sectionLabel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--mt);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}

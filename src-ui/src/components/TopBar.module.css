@@ -1,0 +1,119 @@
+.topbar {
+    background: var(--surf);
+    border-bottom: 1px solid var(--bdr2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.logo {
+    font-family: var(--font-cond);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--p1);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logoIcon {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.logoHalf {
+    display: block;
+    width: 8px;
+    height: 20px;
+    background: var(--p1);
+    border-radius: 1px;
+}
+
+.logoHalfDim {
+    opacity: 0.4;
+}
+
+.splitToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--mt);
+    cursor: pointer;
+    padding: 4px 10px;
+    border: 1px solid var(--bdr2);
+    border-radius: 4px;
+    background: transparent;
+    transition: border-color 0.15s, color 0.15s;
+    text-transform: lowercase;
+}
+
+.splitToggle:hover {
+    border-color: var(--p1);
+    color: var(--p1);
+}
+
+.splitIcon {
+    width: 28px;
+    height: 18px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.splitH {
+    display: flex;
+    flex-direction: column;
+}
+
+.splitV {
+    display: flex;
+    flex-direction: row;
+}
+
+.splitPane1 {
+    flex: 1;
+    background: currentColor;
+    opacity: 0.5;
+}
+
+.splitPane2 {
+    flex: 1;
+}
+
+.ctrlCount {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--mt);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.statusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--p1);
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}

@@ -1,0 +1,160 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    align-content: start;
+}
+
+/* Confirm row spans all 4 columns */
+.confirmRow {
+    grid-column: 1 / -1;
+    background: var(--surf2);
+    border: 1px solid var(--bdr2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.confirmRow:has(.confirmBtnActive) {
+    border-color: rgba(0, 229, 160, 0.35);
+    background: rgba(0, 229, 160, 0.04);
+}
+
+.confirmGame {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mt);
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+.dotActive {
+    background: var(--p1);
+}
+
+.confirmName {
+    font-family: var(--font-cond);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mt);
+    transition: color 0.15s;
+}
+
+.confirmNameActive {
+    color: var(--p1);
+}
+
+.confirmHint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--mt);
+    margin-top: 1px;
+}
+
+.confirmBtn {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background: var(--dim);
+    color: var(--mt);
+    border: none;
+    cursor: not-allowed;
+    transition: background 0.15s, color 0.15s;
+    text-transform: lowercase;
+}
+
+.confirmBtnActive {
+    background: var(--p1);
+    color: #000;
+    cursor: pointer;
+}
+
+.confirmBtnActive:hover {
+    opacity: 0.85;
+}
+
+/* Game cards */
+.card {
+    background: var(--surf2);
+    border: 1px solid var(--bdr);
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.12s, transform 0.1s, opacity 0.2s;
+    position: relative;
+}
+
+.card:hover {
+    border-color: var(--bdr2);
+    transform: translateY(-2px);
+}
+
+.focused {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.selected {
+    border-color: var(--p1);
+}
+
+.dimmed {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.dimmed:hover {
+    transform: none;
+    border-color: var(--bdr);
+}
+
+.thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.selectedBadge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--p1);
+    color: #000;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.info {
+    padding: 6px 8px 8px;
+}
+
+.title {
+    font-family: var(--font-cond);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tx);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.desc {
+    font-size: 10px;
+    color: var(--mt);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

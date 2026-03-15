@@ -1,0 +1,56 @@
+.bar {
+    background: rgba(0, 229, 160, 0.05);
+    border: 1px solid rgba(0, 229, 160, 0.35);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.gameInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--p1);
+    flex-shrink: 0;
+}
+
+.name {
+    font-family: var(--font-cond);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--p1);
+}
+
+.sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--p1);
+    opacity: 0.7;
+    margin-top: 1px;
+}
+
+.changeBtn {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    background: var(--dim);
+    color: var(--mt);
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    text-transform: lowercase;
+}
+
+.changeBtn:hover {
+    background: var(--surf2);
+    color: var(--tx);
+}

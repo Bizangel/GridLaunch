@@ -1,87 +1,32 @@
-import { useCallback } from 'react'
-import { sendIPCEvent } from './ipc/common'
-import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
-import { create } from 'zustand'
-import { produce } from 'immer'
-
-type GamepadPlayer = {
-  name: string,
-  dev_path: string,
-}
-
-type GamepadPlayersState = {
-  players: [GamepadPlayer | null, GamepadPlayer | null, GamepadPlayer | null, GamepadPlayer | null],
-  assign_player: (player: GamepadPlayer, idx: number) => void
-}
-
-const useGamepadStore = create<GamepadPlayersState>((set) => ({
-  players: [null, null, null, null],
-  assign_player: (player, idx) => {
-    set(prev => produce(prev, draft => {
-      const prev_idx = prev.players.findIndex(e => e?.dev_path == player.dev_path);
-      if (prev_idx !== -1)
-        draft.players[prev_idx] = null
-
-      draft.players[idx] = player
-    }))
-  }
-}))
+import { useUIState } from './store/ui-store'
+import { TopBar } from './components/TopBar'
+import { GameGrid } from './components/GameGrid'
+import { ConfirmBar } from './components/Confirmbar'
+import { Sidebar } from './components/Sidebar'
+import { HintBar } from './components/Hintbar'
+import styles from './App.module.css'
 
 function App() {
-
-  const players = useGamepadStore(e => e.players)
-  const assign_player = useGamepadStore(e => e.assign_player)
-
-  const callbutton = useCallback(() => {
-    sendIPCEvent({
-      type: 'LaunchRequested', splitscreen_type: 'horizontal',
-      gamepads: players.filter(e => e !== null).map(e => e.dev_path),
-      users: players.filter(e => e !== null).map(e => e.name),
-    })
-  }, [players])
-
-  useWebViewEventHandler('AppGamepadButtonEvent', useCallback((ev) => {
-
-
-    if (ev.button == "DpadLeft") {
-      const player: GamepadPlayer = { name: "game-user", dev_path: ev.gamepad_devpath }
-      assign_player(player, 0)
-    }
-
-    if (ev.button == "DpadRight") {
-      const player: GamepadPlayer = { name: "game-user-giluxe", dev_path: ev.gamepad_devpath }
-      assign_player(player, 1)
-    }
-  }, [assign_player]))
+  const phase = useUIState((s) => s.phase)
 
   return (
-    <>
+    <div className={styles.launcher}>
+      <TopBar />
 
-      <div className='long-container'>
-        <div className='gamepad-entry'>
-          Controller1
+      <div className={styles.body}>
+        {/* Main game pane */}
+        <main className={styles.gamePane}>
+          <div className={styles.sectionLabel}>installed games</div>
+          <GameGrid />
+          {phase === 'join-players' && <ConfirmBar />}
+        </main>
 
-          <div className='gamepad-name'>
-            <p> {players[0]?.name} </p>
-            <p> {players[0]?.dev_path} </p>
-          </div>
-        </div>
-        <div className='gamepad-entry'>
-          Controller2
-          <div className='gamepad-name'>
-            <p> {players[1]?.name} </p>
-            <p> {players[1]?.dev_path} </p>
-          </div>
-        </div>
+        {/* Right sidebar */}
+        <Sidebar />
       </div>
 
-
-      <p>
-        <button onClick={callbutton}>
-        Launch
-        </button>
-      </p>
-    </>
+      <HintBar />
+    </div>
   )
 }
 

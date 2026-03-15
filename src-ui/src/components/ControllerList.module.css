@@ -1,0 +1,87 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    transition: opacity 0.2s, filter 0.2s;
+}
+
+.locked {
+    opacity: 0.22;
+    filter: saturate(0);
+    pointer-events: none;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--bdr);
+    background: var(--surf2);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.12s, opacity 0.12s;
+}
+
+.row:hover {
+    border-color: var(--bdr2);
+}
+
+.unjoined {
+    opacity: 0.4;
+}
+
+.unjoined:hover {
+    opacity: 1;
+}
+
+.stripe {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+}
+
+.icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: var(--dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info {
+    flex: 1;
+    min-width: 0;
+}
+
+.name {
+    font-size: 12px;
+    color: var(--tx);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--mt);
+    margin-top: 1px;
+}
+
+.badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--dim);
+    color: var(--mt);
+    flex-shrink: 0;
+}
