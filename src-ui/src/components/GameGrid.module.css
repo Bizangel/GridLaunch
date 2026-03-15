@@ -96,7 +96,6 @@
 
 .card:hover {
     border-color: var(--bdr2);
-    transform: translateY(-2px);
 }
 
 .focused {
