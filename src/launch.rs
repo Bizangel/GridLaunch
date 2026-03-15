@@ -1,4 +1,4 @@
-use crate::events::LaunchRequestedEvent;
+use crate::events::fromwebview_event::LaunchRequestedEvent;
 use crate::game_instance::GameInstance;
 use crate::kwin_window_handling::load_kwin_script_dbus;
 use crate::kwin_window_handling::unload_kwin_script_dbus;

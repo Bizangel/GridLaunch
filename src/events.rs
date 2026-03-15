@@ -1,42 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
-
-use crate::gamepad::AppGamepadButtonEvent;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct LaunchRequestedEvent {
-    pub splitscreen_type: String,
-    pub users: Vec<String>,
-    pub gamepads: Vec<String>,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[serde(tag = "type")]
-pub enum FromWebViewEvent {
-    LaunchRequested(LaunchRequestedEvent),
-    WebViewReady,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct GamepadsUpdateEvent {
-    pub gamepads: HashMap<PathBuf, String>,
-}
-
-// Events generated to be handled for the main loop
-#[derive(Debug, Clone)]
-pub enum GridLaunchEvent {
-    FromWebViewEvent(FromWebViewEvent),
-    ForwardToWebViewEvent(ToWebViewEvent),
-}
-
-#[derive(Debug, Clone, Serialize)]
-#[serde(tag = "type")]
-pub enum ToWebViewEvent {
-    AppGamepadButtonEvent(AppGamepadButtonEvent),
-    GamepadsUpdate(GamepadsUpdateEvent),
-}
-
-#[derive(Debug, Clone)]
-pub enum GridLaunchWorkerEvent {
-    EmitGamepadUpdate,
-}
+pub mod fromwebview_event;
+pub mod gridlaunch_event;
+pub mod towebview_event;
+pub mod worker_event;

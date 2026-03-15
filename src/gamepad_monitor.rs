@@ -1,14 +1,15 @@
 use crate::{
     common::AppGamepad,
-    events::{GamepadsUpdateEvent, GridLaunchWorkerEvent},
+    events::{
+        gridlaunch_event::GridLaunchEvent,
+        towebview_event::ToWebViewEvent,
+        worker_event::{GamepadsUpdateEvent, GridLaunchWorkerEvent},
+    },
     gamepad::{
         AppGamepadButtonEvent, get_device_name_with_unk_default, is_joystick, parse_button_event,
     },
     wry_ui_helper::stop_signal::StopSignal,
 };
-
-use crate::events::GridLaunchEvent;
-use crate::events::ToWebViewEvent;
 
 use evdev::Device as EvdevDevice;
 use std::{collections::HashMap, path::PathBuf, sync::mpsc::Receiver, thread, time::Duration};

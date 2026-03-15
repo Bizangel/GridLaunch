@@ -1,7 +1,9 @@
 pub const UI_TITLE_NAME: &str = "GridLaunch";
 pub const VITE_DEV_LOCALHOST_URL: &str = "http://localhost:5173";
 
-use gridlaunch::events::{FromWebViewEvent, GridLaunchEvent, GridLaunchWorkerEvent};
+use gridlaunch::events::fromwebview_event::FromWebViewEvent;
+use gridlaunch::events::gridlaunch_event::GridLaunchEvent;
+use gridlaunch::events::worker_event::GridLaunchWorkerEvent;
 use gridlaunch::gamepad_monitor::gamepad_monitor_worker_main;
 use gridlaunch::launch::spawn_games;
 use gridlaunch::wry_ui_helper::{WryWebViewApp, WryWebViewAppBuilder};
