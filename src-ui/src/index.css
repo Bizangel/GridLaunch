@@ -16,9 +16,9 @@
   --p2: #00bfff;
   --p3: #ff6b6b;
   --p4: #ffd166;
-  --font-mono: 'Share Tech Mono', monospace;
-  --font-cond: 'Barlow Condensed', sans-serif;
-  --font-ui: 'Barlow', sans-serif;
+  --font-mono: monospace;
+  --font-cond: sans-serif;
+  --font-ui: sans-serif;
 }
 
 #root {
