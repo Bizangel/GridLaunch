@@ -76,5 +76,5 @@ export function useGridNav(
     [count, cursor, onMove],
   )
 
-  return { setCardRef, navigate }
+  return { setCardRef, navigate, cardRefs }
 }

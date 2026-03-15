@@ -6,6 +6,7 @@ import { useGamepadInput } from './hooks/useGamepadInput'
 import { sendIPCEvent } from './ipc/common'
 import { TopBar } from './components/TopBar'
 import { GameGrid } from './components/GameGrid'
+import { ConfirmGameBar } from './components/ConfirmGamebar'
 import { ConfirmBar } from './components/ConfirmBar'
 import { Sidebar } from './components/Sidebar'
 import { HintBar } from './components/Hintbar'
@@ -14,7 +15,7 @@ import styles from './App.module.css'
 import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from './types'
 
 function App() {
-  const phase           = useUIState((s) => s.phase)
+  const phase            = useUIState((s) => s.phase)
   const returnFromLaunch = useUIState((s) => s.returnFromLaunch)
   const { handleButtonEvent, handleGamepadsUpdate } = useGamepadInput()
 
@@ -47,7 +48,12 @@ function App() {
       <div className={styles.body}>
         <main className={styles.gamePane}>
           <div className={styles.sectionLabel}>installed games</div>
-          <GameGrid />
+
+          <div className={styles.gridScroll}>
+            <GameGrid />
+          </div>
+
+          {phase === 'select-game'  && <ConfirmGameBar />}
           {phase === 'join-players' && <ConfirmBar />}
         </main>
 

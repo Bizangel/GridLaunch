@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import { useUIState } from '../store/ui-store'
 import { PROFILES, PLAYER_COLORS, PLAYER_LABELS } from '../data'
 import styles from './ProfileList.module.css'
@@ -26,13 +27,22 @@ export function ProfileList() {
     return idx === -1 ? null : idx
   }
 
-  // Build the list of available profiles in order, maintaining original indices
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([])
+
   const takenIds = new Set(
     players
       .filter((p, i) => p !== null && i !== activePickerIdx && p.profileId !== null)
       .map((p) => p!.profileId),
   )
   const availableProfiles = PROFILES.filter((p) => !takenIds.has(p.id))
+
+  // Scroll the cursor row into view when profileCursor changes
+  useEffect(() => {
+    const target = availableProfiles[profileCursor]
+    if (!target) return
+    const globalIdx = PROFILES.findIndex((p) => p.id === target.id)
+    rowRefs.current[globalIdx]?.scrollIntoView({ block: 'nearest' })
+  }, [profileCursor, availableProfiles])
 
   return (
     <div className={`${styles.section} ${isLocked ? styles.locked : ''}`}>
@@ -60,6 +70,7 @@ export function ProfileList() {
           return (
             <div
               key={profile.id}
+              ref={(el) => { rowRefs.current[PROFILES.indexOf(profile)] = el }}
               className={[
                 styles.row,
                 isTaken && styles.taken,

@@ -12,16 +12,20 @@ export function GameGrid() {
   const confirmGame    = useUIState((s) => s.confirmGame)
   const setGameCursor  = useUIState((s) => s.setGameCursor)
 
-  const isPhase1   = phase === 'select-game'
-  const focusedGame = isPhase1 ? GAMES[gameCursor] : null
+  const isPhase1 = phase === 'select-game'
 
-  const { setCardRef, navigate } = useGridNav(GAMES.length, gameCursor, setGameCursor)
+  const { setCardRef, navigate, cardRefs } = useGridNav(GAMES.length, gameCursor, setGameCursor)
 
-  // Register navigate into the shared ref so the gamepad hook can call it
   useEffect(() => {
     gridNavRef.navigate = navigate
     return () => { gridNavRef.navigate = null }
   }, [navigate])
+
+  // Scroll focused card into view whenever cursor changes
+  useEffect(() => {
+    if (!isPhase1) return
+    cardRefs.current[gameCursor]?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [gameCursor, isPhase1])
 
   return (
     <div className={styles.grid}>
@@ -58,28 +62,6 @@ export function GameGrid() {
           </div>
         )
       })}
-
-      {isPhase1 && (
-        <div className={styles.confirmRow}>
-          <div className={styles.confirmGame}>
-            <div className={`${styles.dot} ${focusedGame ? styles.dotActive : ''}`} />
-            <div>
-              <div className={`${styles.confirmName} ${focusedGame ? styles.confirmNameActive : ''}`}>
-                {focusedGame ? focusedGame.name : 'no game selected'}
-              </div>
-              <div className={styles.confirmHint}>
-                press A to confirm · dpad to browse
-              </div>
-            </div>
-          </div>
-          <button
-            className={`${styles.confirmBtn} ${focusedGame ? styles.confirmBtnActive : ''}`}
-            onClick={() => focusedGame && confirmGame(focusedGame.id)}
-          >
-            confirm A
-          </button>
-        </div>
-      )}
     </div>
   )
 }
