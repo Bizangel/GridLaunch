@@ -13,6 +13,7 @@ export function ProfileList() {
   const phase = useUIState((s) => s.phase)
   const players = useUIState((s) => s.players)
   const activePickerIdx = useUIState((s) => s.activePickerIdx)
+  const profileCursor = useUIState((s) => s.profileCursor)
   const pickProfile = useUIState((s) => s.pickProfile)
 
   const isLocked = phase === 'select-game'
@@ -24,6 +25,14 @@ export function ProfileList() {
     const idx = players.findIndex((p) => p?.profileId === profileId)
     return idx === -1 ? null : idx
   }
+
+  // Build the list of available profiles in order, maintaining original indices
+  const takenIds = new Set(
+    players
+      .filter((p, i) => p !== null && i !== activePickerIdx && p.profileId !== null)
+      .map((p) => p!.profileId),
+  )
+  const availableProfiles = PROFILES.filter((p) => !takenIds.has(p.id))
 
   return (
     <div className={`${styles.section} ${isLocked ? styles.locked : ''}`}>
@@ -44,6 +53,10 @@ export function ProfileList() {
           const ownerLabel = isTaken ? PLAYER_LABELS[ownerIdx!] : undefined
           const isPickable = !!activePicker && !isTaken
 
+          // Cursor highlight — find this profile's position in the available list
+          const availableIdx = availableProfiles.findIndex((p) => p.id === profile.id)
+          const isCursorOn = isPickable && availableIdx === profileCursor
+
           return (
             <div
               key={profile.id}
@@ -51,15 +64,13 @@ export function ProfileList() {
                 styles.row,
                 isTaken && styles.taken,
                 isPickable && styles.pickable,
-              ]
-                .filter(Boolean)
-                .join(' ')}
+                isCursorOn && styles.cursorOn,
+              ].filter(Boolean).join(' ')}
               style={
-                isTaken && ownerColor
-                  ? {
-                      borderColor: hexToRgba(ownerColor, 0.45),
-                      background: hexToRgba(ownerColor, 0.05),
-                    }
+                isCursorOn && activeColor
+                  ? { borderColor: hexToRgba(activeColor, 0.6), background: hexToRgba(activeColor, 0.08) }
+                  : isTaken && ownerColor
+                  ? { borderColor: hexToRgba(ownerColor, 0.45), background: hexToRgba(ownerColor, 0.05) }
                   : undefined
               }
               onClick={() => isPickable && pickProfile(profile.id)}
@@ -67,11 +78,10 @@ export function ProfileList() {
               <div
                 className={styles.avatar}
                 style={
-                  isTaken && ownerColor
-                    ? {
-                        background: hexToRgba(ownerColor, 0.2),
-                        color: ownerColor,
-                      }
+                  isCursorOn && activeColor
+                    ? { background: hexToRgba(activeColor, 0.2), color: activeColor }
+                    : isTaken && ownerColor
+                    ? { background: hexToRgba(ownerColor, 0.2), color: ownerColor }
                     : undefined
                 }
               >
@@ -85,17 +95,14 @@ export function ProfileList() {
               {isTaken && ownerColor && (
                 <span
                   className={styles.ownerBadge}
-                  style={{
-                    background: hexToRgba(ownerColor, 0.18),
-                    color: ownerColor,
-                  }}
+                  style={{ background: hexToRgba(ownerColor, 0.18), color: ownerColor }}
                 >
                   {ownerLabel}
                 </span>
               )}
 
-              {isPickable && (
-                <span className={styles.selectHint}>▶</span>
+              {isCursorOn && (
+                <span className={styles.selectHint} style={{ color: activeColor }}>▶</span>
               )}
             </div>
           )

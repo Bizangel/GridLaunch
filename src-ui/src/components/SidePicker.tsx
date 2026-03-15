@@ -9,14 +9,12 @@ function hexToRgba(hex: string, alpha: number) {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
-// Labels for each side index depending on orientation and player count
 function sideLabel(index: number, orientation: 'horizontal' | 'vertical', totalPlayers: number): string {
   if (totalPlayers <= 2) {
     if (orientation === 'horizontal') return index === 0 ? 'top' : 'bottom'
     return index === 0 ? 'left' : 'right'
   }
-  // 3-4 players: short quadrant labels to avoid wrapping
-  const labels = ['↖ top left', '↗ top right', '↙ bot left', '↘ bot right']
+  const labels = ['↖ top left', '↗ top right', '↙ bottom left', '↘ bottom right']
   return labels[index] ?? `slot ${index + 1}`
 }
 
@@ -28,6 +26,7 @@ export function SidePicker() {
   const players = useUIState((s) => s.players)
   const activePickerIdx = useUIState((s) => s.activePickerIdx)
   const orientation = useUIState((s) => s.splitOrientation)
+  const sideCursor = useUIState((s) => s.sideCursor)
   const pickSide = useUIState((s) => s.pickSide)
 
   if (activePickerIdx === null) return null
@@ -43,15 +42,13 @@ export function SidePicker() {
   const joinedCount = players.filter(Boolean).length
   const sides = totalSides(joinedCount)
 
-  // Which side indices are already taken by other ready/picking-side players
-  const takenSides = new Map<number, number>() // sideIndex → playerSlotIdx
+  const takenSides = new Map<number, number>()
   players.forEach((p, i) => {
     if (i !== activePickerIdx && p && p.sideIndex !== null) {
       takenSides.set(p.sideIndex, i)
     }
   })
 
-  // Available sides — if only one left, auto-pick is handled by caller but we still show it
   const availableSides = Array.from({ length: sides }, (_, i) => i).filter(
     (i) => !takenSides.has(i),
   )
@@ -74,6 +71,10 @@ export function SidePicker() {
           const ownerColor = isTaken ? PLAYER_COLORS[ownerSlotIdx!] : undefined
           const ownerLabel = isTaken ? PLAYER_LABELS[ownerSlotIdx!] : undefined
 
+          // Cursor points into the availableSides array
+          const availableIdx = availableSides.indexOf(sideIdx)
+          const isCursorOn = isAvailable && availableIdx === sideCursor
+
           return (
             <div
               key={sideIdx}
@@ -81,21 +82,29 @@ export function SidePicker() {
                 styles.slot,
                 isTaken && styles.slotTaken,
                 isAvailable && styles.slotAvailable,
+                isCursorOn && styles.slotCursor,
               ].filter(Boolean).join(' ')}
-              style={isAvailable ? { borderColor: hexToRgba(activeColor, 0.5), background: hexToRgba(activeColor, 0.07) } : undefined}
+              style={
+                isCursorOn
+                  ? { borderColor: hexToRgba(activeColor, 0.7), background: hexToRgba(activeColor, 0.12) }
+                  : isAvailable
+                  ? { borderColor: hexToRgba(activeColor, 0.3), background: hexToRgba(activeColor, 0.04) }
+                  : undefined
+              }
               onClick={() => isAvailable && pickSide(sideIdx)}
             >
               {isTaken && ownerColor ? (
-                <>
-                  <span
-                    className={styles.ownerTag}
-                    style={{ background: hexToRgba(ownerColor, 0.18), color: ownerColor }}
-                  >
-                    {ownerLabel}
-                  </span>
-                </>
+                <span
+                  className={styles.ownerTag}
+                  style={{ background: hexToRgba(ownerColor, 0.18), color: ownerColor }}
+                >
+                  {ownerLabel}
+                </span>
               ) : (
-                <span className={styles.slotLabel} style={{ color: activeColor }}>
+                <span
+                  className={styles.slotLabel}
+                  style={{ color: isCursorOn ? activeColor : 'var(--mt)' }}
+                >
                   {sideLabel(sideIdx, orientation, joinedCount)}
                 </span>
               )}
@@ -108,7 +117,7 @@ export function SidePicker() {
         <div className={styles.hint}>only one side available</div>
       )}
       {availableSides.length > 1 && (
-        <div className={styles.hint}>click or use ← → to choose</div>
+        <div className={styles.hint}>↑↓ or click · A to confirm</div>
       )}
     </div>
   )

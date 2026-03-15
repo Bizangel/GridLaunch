@@ -1,4 +1,4 @@
-import type { Game, Controller, Profile } from './types'
+import type { Game, Profile } from './types'
 
 export const GAMES: Game[] = [
   { id: 1, name: 'Portal 2',             description: 'Co-op puzzle platformer', maxPlayers: 2, coverColor: '#1a2a1a' },
@@ -11,14 +11,14 @@ export const GAMES: Game[] = [
   { id: 8, name: 'Cuphead',             description: 'Run and gun action',        maxPlayers: 2, coverColor: '#1f1020' },
 ]
 
-export const CONTROLLERS: Controller[] = [
-  { id: 0, name: 'DualSense Edge',   devPath: '/dev/input/js0' },
-  { id: 1, name: 'Xbox Series X',    devPath: '/dev/input/js1' },
-  { id: 2, name: '8Bitdo Pro 2',     devPath: '/dev/input/js2' },
-  { id: 3, name: 'Steam Controller', devPath: '/dev/input/js3' },
-  { id: 4, name: 'Xbox 360 Controller', devPath: '/dev/input/js4' },
-  { id: 5, name: 'Keychron Link', devPath: '/dev/input/js5' },
-]
+// export const CONTROLLERS: Controller[] = [
+//   { id: 0, name: 'DualSense Edge',   devPath: '/dev/input/js0' },
+//   { id: 1, name: 'Xbox Series X',    devPath: '/dev/input/js1' },
+//   { id: 2, name: '8Bitdo Pro 2',     devPath: '/dev/input/js2' },
+//   { id: 3, name: 'Steam Controller', devPath: '/dev/input/js3' },
+//   { id: 4, name: 'Xbox 360 Controller', devPath: '/dev/input/js4' },
+//   { id: 5, name: 'Keychron Link', devPath: '/dev/input/js5' },
+// ]
 
 export const PROFILES: Profile[] = [
   { id: 0, name: 'Player One',   saveSlot: 'slot_1', initials: 'P1' },

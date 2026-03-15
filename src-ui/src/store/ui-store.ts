@@ -1,24 +1,33 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
-import type { Phase, PlayerSlot, SplitOrientation } from '../types'
+import type { Controller, Phase, PlayerSlot, SplitOrientation } from '../types'
 
 type State = {
   phase: Phase
   selectedGameId: number | null
   splitOrientation: SplitOrientation
+  connectedControllers: Controller[]
   players: [PlayerSlot, PlayerSlot, PlayerSlot, PlayerSlot]
   activePickerIdx: number | null
+  gameCursor: number      // index into GAMES array
+  profileCursor: number
+  sideCursor: number
 }
 
 type Actions = {
   confirmGame: (gameId: number) => void
   changeGame: () => void
   toggleOrientation: () => void
-  joinController: (controllerId: number) => void
+  syncControllers: (gamepads: Record<string, string>) => void
+  joinController: (devPath: string) => void
+  unjoinByDevPath: (devPath: string) => void
   unjoinPlayer: (slotIdx: number) => void
   pickProfile: (profileId: number) => void
   pickSide: (sideIndex: number) => void
   setPickerActive: (slotIdx: number) => void
+  moveGameCursor: (delta: number, gameCount: number) => void
+  moveProfileCursor: (delta: number, profileCount: number) => void
+  moveSideCursor: (delta: number, sideCount: number) => void
 }
 
 const emptyPlayers: State['players'] = [null, null, null, null]
@@ -34,28 +43,70 @@ export const useUIState = create<State & Actions>((set) => ({
   phase: 'select-game',
   selectedGameId: null,
   splitOrientation: 'horizontal',
+  connectedControllers: [],
   players: emptyPlayers,
   activePickerIdx: null,
+  gameCursor: 0,
+  profileCursor: 0,
+  sideCursor: 0,
 
   confirmGame: (gameId) =>
     set({ phase: 'join-players', selectedGameId: gameId }),
 
   changeGame: () =>
-    set({ phase: 'select-game', players: emptyPlayers, activePickerIdx: null }),
+    set({ phase: 'select-game', players: emptyPlayers, activePickerIdx: null, gameCursor: 0 }),
 
   toggleOrientation: () =>
     set((s) => ({
       splitOrientation: s.splitOrientation === 'horizontal' ? 'vertical' : 'horizontal',
     })),
 
-  joinController: (controllerId) =>
+  // Receives the full current snapshot. Diffs against existing list:
+  // - controllers no longer in the snapshot are removed and their players unjoined
+  // - new controllers are added
+  syncControllers: (gamepads) =>
     set(
       produce((draft: State) => {
-        if (draft.players.some((p) => p?.controllerId === controllerId)) return
+        const incoming = Object.entries(gamepads).map(
+          ([devPath, name]): Controller => ({ devPath, name }),
+        )
+        const incomingPaths = new Set(incoming.map((c) => c.devPath))
+
+        // Unjoin any player whose controller is no longer present
+        draft.players.forEach((player, slotIdx) => {
+          if (player && !incomingPaths.has(player.devPath)) {
+            draft.players[slotIdx] = null
+            if (draft.activePickerIdx === slotIdx) {
+              draft.activePickerIdx = nextActiveIdx(draft.players, slotIdx)
+            }
+          }
+        })
+
+        draft.connectedControllers = incoming
+      }),
+    ),
+
+  joinController: (devPath) =>
+    set(
+      produce((draft: State) => {
+        if (draft.players.some((p) => p?.devPath === devPath)) return
         const slot = draft.players.findIndex((p) => p === null)
         if (slot === -1) return
-        draft.players[slot] = { controllerId, profileId: null, sideIndex: null, state: 'picking' }
+        draft.players[slot] = { devPath, profileId: null, sideIndex: null, state: 'picking' }
         draft.activePickerIdx = slot
+        draft.profileCursor = 0
+      }),
+    ),
+
+  unjoinByDevPath: (devPath) =>
+    set(
+      produce((draft: State) => {
+        const slotIdx = draft.players.findIndex((p) => p?.devPath === devPath)
+        if (slotIdx === -1) return
+        draft.players[slotIdx] = null
+        if (draft.activePickerIdx === slotIdx) {
+          draft.activePickerIdx = nextActiveIdx(draft.players, slotIdx)
+        }
       }),
     ),
 
@@ -77,7 +128,7 @@ export const useUIState = create<State & Actions>((set) => ({
         if (!slot) return
         slot.profileId = profileId
         slot.state = 'picking-side'
-        // activePickerIdx stays — same player now picks their side
+        draft.sideCursor = 0
       }),
     ),
 
@@ -90,6 +141,8 @@ export const useUIState = create<State & Actions>((set) => ({
         slot.sideIndex = sideIndex
         slot.state = 'ready'
         draft.activePickerIdx = nextActiveIdx(draft.players, draft.activePickerIdx)
+        draft.profileCursor = 0
+        draft.sideCursor = 0
       }),
     ),
 
@@ -102,6 +155,22 @@ export const useUIState = create<State & Actions>((set) => ({
         slot.profileId = null
         slot.sideIndex = null
         draft.activePickerIdx = slotIdx
+        draft.profileCursor = 0
       }),
     ),
+
+  moveGameCursor: (delta, gameCount) =>
+    set((s) => ({
+      gameCursor: (s.gameCursor + delta + gameCount) % gameCount,
+    })),
+
+  moveProfileCursor: (delta, profileCount) =>
+    set((s) => ({
+      profileCursor: (s.profileCursor + delta + profileCount) % profileCount,
+    })),
+
+  moveSideCursor: (delta, sideCount) =>
+    set((s) => ({
+      sideCursor: (s.sideCursor + delta + sideCount) % sideCount,
+    })),
 }))

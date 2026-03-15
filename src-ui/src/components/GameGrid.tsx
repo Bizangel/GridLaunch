@@ -1,24 +1,24 @@
-import { useState } from 'react'
 import { useUIState } from '../store/ui-store'
 import { GAMES } from '../data'
 import styles from './GameGrid.module.css'
 
 export function GameGrid() {
-  const phase = useUIState((s) => s.phase)
+  const phase        = useUIState((s) => s.phase)
   const selectedGameId = useUIState((s) => s.selectedGameId)
-  const confirmGame = useUIState((s) => s.confirmGame)
-
-  // In phase 1, track the focused (highlighted) game before confirmation
-  const [focusedId, setFocusedId] = useState<number | null>(null)
+  const gameCursor   = useUIState((s) => s.gameCursor)
+  const confirmGame  = useUIState((s) => s.confirmGame)
+  const moveGameCursor = useUIState((s) => s.moveGameCursor)
 
   const isPhase1 = phase === 'select-game'
+  // gameCursor is an index into GAMES; derive the focused game id from it
+  const focusedGame = isPhase1 ? GAMES[gameCursor] : null
 
   return (
     <div className={styles.grid}>
-      {GAMES.map((game) => {
+      {GAMES.map((game, idx) => {
         const isSelected = game.id === selectedGameId
-        const isFocused = game.id === focusedId && isPhase1
-        const isDimmed = !isPhase1 && !isSelected
+        const isFocused  = isPhase1 && idx === gameCursor
+        const isDimmed   = !isPhase1 && !isSelected
 
         return (
           <div
@@ -26,14 +26,13 @@ export function GameGrid() {
             className={[
               styles.card,
               isSelected && styles.selected,
-              isFocused && styles.focused,
-              isDimmed && styles.dimmed,
-            ]
-              .filter(Boolean)
-              .join(' ')}
+              isFocused  && styles.focused,
+              isDimmed   && styles.dimmed,
+            ].filter(Boolean).join(' ')}
             onClick={() => {
               if (!isPhase1) return
-              setFocusedId(game.id)
+              // Click moves cursor to this card
+              moveGameCursor(idx - gameCursor, GAMES.length)
             }}
             onDoubleClick={() => {
               if (!isPhase1) return
@@ -50,24 +49,22 @@ export function GameGrid() {
         )
       })}
 
-      {/* Phase 1: confirm bar shown inside game pane below grid */}
       {isPhase1 && (
         <div className={styles.confirmRow}>
           <div className={styles.confirmGame}>
-            <div className={`${styles.dot} ${focusedId ? styles.dotActive : ''}`} />
+            <div className={`${styles.dot} ${focusedGame ? styles.dotActive : ''}`} />
             <div>
-              <div className={`${styles.confirmName} ${focusedId ? styles.confirmNameActive : ''}`}>
-                {focusedId ? GAMES.find((g) => g.id === focusedId)?.name : 'no game selected'}
+              <div className={`${styles.confirmName} ${focusedGame ? styles.confirmNameActive : ''}`}>
+                {focusedGame ? focusedGame.name : 'no game selected'}
               </div>
               <div className={styles.confirmHint}>
-                {focusedId ? 'press A or double-click to confirm' : 'browse and confirm to continue'}
+                press A to confirm · dpad to browse
               </div>
             </div>
           </div>
           <button
-            className={`${styles.confirmBtn} ${focusedId ? styles.confirmBtnActive : ''}`}
-            disabled={!focusedId}
-            onClick={() => focusedId && confirmGame(focusedId)}
+            className={`${styles.confirmBtn} ${focusedGame ? styles.confirmBtnActive : ''}`}
+            onClick={() => focusedGame && confirmGame(focusedGame.id)}
           >
             confirm A
           </button>

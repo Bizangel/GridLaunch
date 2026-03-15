@@ -1,39 +1,46 @@
+import { useCallback } from 'react'
 import { useUIState } from './store/ui-store'
+import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
+import { useOnWebviewLoaded } from './hooks/useOnWebviewLoaded'
+import { useGamepadInput } from './hooks/useGamepadInput'
+import { sendIPCEvent } from './ipc/common'
 import { TopBar } from './components/TopBar'
 import { GameGrid } from './components/GameGrid'
 import { ConfirmBar } from './components/ConfirmBar'
 import { Sidebar } from './components/Sidebar'
 import { HintBar } from './components/Hintbar'
 import styles from './App.module.css'
-import { useCallback } from 'react'
-import { useOnWebviewLoaded } from './hooks/useOnWebviewLoaded'
-import { sendIPCEvent } from './ipc/common'
-import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
+import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from './types'
 
 function App() {
   const phase = useUIState((s) => s.phase)
+  const { handleButtonEvent, handleGamepadsUpdate } = useGamepadInput()
 
   useOnWebviewLoaded(useCallback(() => {
-    sendIPCEvent({type: "WebViewReady"})
+    sendIPCEvent({ type: 'WebViewReady' })
   }, []))
 
-  useWebViewEventHandler("GamepadsUpdate", (ev) => {
-    console.log(ev)
-  })
+  useWebViewEventHandler(
+    'AppGamepadButtonEvent',
+    useCallback((ev: GamepadButtonPressedEvent) => handleButtonEvent(ev), [handleButtonEvent]),
+  )
+
+  useWebViewEventHandler(
+    'GamepadsUpdate',
+    useCallback((ev: GamepadsUpdateEvent) => handleGamepadsUpdate(ev), [handleGamepadsUpdate]),
+  )
 
   return (
     <div className={styles.launcher}>
       <TopBar />
 
       <div className={styles.body}>
-        {/* Main game pane */}
         <main className={styles.gamePane}>
           <div className={styles.sectionLabel}>installed games</div>
           <GameGrid />
           {phase === 'join-players' && <ConfirmBar />}
         </main>
 
-        {/* Right sidebar */}
         <Sidebar />
       </div>
 

@@ -1,5 +1,5 @@
 import { useUIState } from '../store/ui-store'
-import { CONTROLLERS, PLAYER_COLORS, PLAYER_LABELS } from '../data'
+import { PLAYER_COLORS, PLAYER_LABELS } from '../data'
 import { GamepadIcon } from './GamepadIcon'
 import styles from './ControllerList.module.css'
 
@@ -12,57 +12,45 @@ function hexToRgba(hex: string, alpha: number) {
 
 export function ControllerList() {
   const phase = useUIState((s) => s.phase)
+  const connectedControllers = useUIState((s) => s.connectedControllers)
   const players = useUIState((s) => s.players)
-  const joinController = useUIState((s) => s.joinController)
-  const unjoinPlayer = useUIState((s) => s.unjoinPlayer)
+  const unjoinByDevPath = useUIState((s) => s.unjoinByDevPath)
   const setPickerActive = useUIState((s) => s.setPickerActive)
+  const joinController = useUIState((s) => s.joinController)
 
   const isLocked = phase === 'select-game'
 
-  function handleClick(controllerId: number) {
+  function handleClick(devPath: string) {
     if (isLocked) return
-    const slotIdx = players.findIndex((p) => p?.controllerId === controllerId)
+    const slotIdx = players.findIndex((p) => p?.devPath === devPath)
     if (slotIdx === -1) {
-      joinController(controllerId)
+      joinController(devPath)
     } else if (players[slotIdx]?.state === 'picking') {
-      unjoinPlayer(slotIdx)
-    } else {
-      // re-open profile picking for this player
+      unjoinByDevPath(devPath)
+    } else if (players[slotIdx]?.state === 'ready') {
       setPickerActive(slotIdx)
     }
   }
 
   return (
     <div className={`${styles.list} ${isLocked ? styles.locked : ''}`}>
-      {CONTROLLERS.map((ctrl) => {
-        const slotIdx = players.findIndex((p) => p?.controllerId === ctrl.id)
+      {connectedControllers.map((ctrl) => {
+        const slotIdx = players.findIndex((p) => p?.devPath === ctrl.devPath)
         const player = slotIdx !== -1 ? players[slotIdx] : null
         const color = player ? PLAYER_COLORS[slotIdx] : undefined
         const label = player ? PLAYER_LABELS[slotIdx] : undefined
 
         return (
           <div
-            key={ctrl.id}
+            key={ctrl.devPath}
             className={[
               styles.row,
               !player && styles.unjoined,
-              player?.state === 'picking' && styles.picking,
-              player?.state === 'ready' && styles.ready,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            style={
-              color
-                ? {
-                    borderColor: hexToRgba(color, 0.5),
-                  }
-                : undefined
-            }
-            onClick={() => handleClick(ctrl.id)}
+            ].filter(Boolean).join(' ')}
+            style={color ? { borderColor: hexToRgba(color, 0.5) } : undefined}
+            onClick={() => handleClick(ctrl.devPath)}
           >
-            {color && (
-              <div className={styles.stripe} style={{ background: color }} />
-            )}
+            {color && <div className={styles.stripe} style={{ background: color }} />}
 
             <div
               className={styles.icon}
@@ -77,11 +65,7 @@ export function ControllerList() {
               </div>
               <span
                 className={styles.badge}
-                style={
-                  color
-                    ? { background: hexToRgba(color, 0.18), color }
-                    : undefined
-                }
+                style={color ? { background: hexToRgba(color, 0.18), color } : undefined}
               >
                 {!player && 'A to join'}
                 {player?.state === 'picking' && `${label} · picking`}
@@ -92,6 +76,12 @@ export function ControllerList() {
           </div>
         )
       })}
+
+      {connectedControllers.length === 0 && (
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--fs-xs)', color: 'var(--mt)', padding: '4px 0' }}>
+          no controllers detected
+        </div>
+      )}
     </div>
   )
 }

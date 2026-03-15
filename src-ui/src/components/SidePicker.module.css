@@ -71,6 +71,10 @@
     filter: brightness(1.15);
 }
 
+.slotCursor {
+    cursor: pointer;
+}
+
 .slotTaken {
     opacity: 0.45;
     cursor: not-allowed;
