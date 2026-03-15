@@ -80,7 +80,6 @@ export function ProfileList() {
 
               <div className={styles.info}>
                 <div className={styles.name}>{profile.name}</div>
-                <div className={styles.save}>{profile.saveSlot}</div>
               </div>
 
               {isTaken && ownerColor && (

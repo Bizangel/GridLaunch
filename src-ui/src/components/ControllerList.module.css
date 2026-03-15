@@ -59,29 +59,26 @@
 .info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--u) * 0.15);
 }
 
 .name {
     font-size: var(--fs-sm);
     color: var(--tx);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.sub {
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    color: var(--mt);
-    margin-top: 1px;
+    /* Allow wrapping — no ellipsis */
+    white-space: normal;
+    line-height: 1.2;
 }
 
 .badge {
+    display: inline-block;
+    align-self: flex-start;
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
     padding: calc(var(--u) * 0.08) var(--sp-sm);
     border-radius: var(--r-sm);
     background: var(--dim);
     color: var(--mt);
-    flex-shrink: 0;
 }

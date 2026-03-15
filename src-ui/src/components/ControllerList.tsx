@@ -68,35 +68,26 @@ export function ControllerList() {
               className={styles.icon}
               style={color ? { background: hexToRgba(color, 0.15) } : undefined}
             >
-              <GamepadIcon color={color ?? '#6b7280'} size={12} />
+              <GamepadIcon color={color ?? '#6b7280'} size="var(--fs-md)" />
             </div>
 
             <div className={styles.info}>
               <div className={styles.name} style={color ? { color } : undefined}>
                 {ctrl.name}
               </div>
-              <div className={styles.sub}>
-                {player
-                  ? `${label} · ${player.state === 'picking' ? 'picking profile...' : 'ready'}`
-                  : ctrl.devPath}
-              </div>
+              <span
+                className={styles.badge}
+                style={
+                  color
+                    ? { background: hexToRgba(color, 0.18), color }
+                    : undefined
+                }
+              >
+                {!player && 'A to join'}
+                {player?.state === 'picking' && `${label} · picking`}
+                {player?.state === 'ready' && `${label} · ready`}
+              </span>
             </div>
-
-            <span
-              className={styles.badge}
-              style={
-                color
-                  ? {
-                      background: hexToRgba(color, 0.18),
-                      color,
-                    }
-                  : undefined
-              }
-            >
-              {!player && 'A to join'}
-              {player?.state === 'picking' && label}
-              {player?.state === 'ready' && 'ready'}
-            </span>
           </div>
         )
       })}

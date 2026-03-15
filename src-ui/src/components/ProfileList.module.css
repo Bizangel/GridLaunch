@@ -35,7 +35,7 @@
     display: flex;
     align-items: center;
     gap: var(--sp-sm);
-    padding: var(--sp-xs) var(--sp-sm);
+    padding: var(--sp-sm) var(--sp-sm);
     border-radius: var(--r-md);
     border: 1px solid var(--bdr);
     background: var(--surf2);
@@ -83,19 +83,14 @@
     text-overflow: ellipsis;
 }
 
-.save {
-    font-family: var(--font-mono);
-    font-size: var(--fs-xs);
-    color: var(--mt);
-    margin-top: 1px;
-}
-
 .ownerBadge {
     font-family: var(--font-mono);
     font-size: var(--fs-xs);
-    padding: calc(var(--u) * 0.08) var(--sp-xs);
+    font-weight: 600;
+    padding: calc(var(--u) * 0.08) var(--sp-sm);
     border-radius: var(--r-sm);
     flex-shrink: 0;
+    letter-spacing: 0.04em;
 }
 
 .selectHint {
