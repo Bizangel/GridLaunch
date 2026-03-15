@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useUIState } from '../store/ui-store'
 import { GAMES, PROFILES } from '../data'
+import { launchSession } from '../ipc/launchSession'
 import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from '../types'
 
 export function useGamepadInput() {
@@ -60,6 +61,16 @@ export function useGamepadInput() {
     const iAmActivePicker = activePickerIdx === mySlotIdx
     const activePicker    = activePickerIdx !== null ? players[activePickerIdx] : null
 
+    // Start — any controller can trigger launch once all conditions are met
+    // Conditions: ≥2 players, every joined player is 'ready', nobody mid-flow
+
+    if (button === 'Start') {
+      const joined = players.filter((p) => p !== null)
+      const allReady = joined.length >= 2 && joined.every((p) => p!.state === 'ready')
+      if (allReady) launchSession()
+      return
+    }
+
     // B ───────────────────────────────────────────────────────────────────
 
     if (button === 'B') {
@@ -85,6 +96,12 @@ export function useGamepadInput() {
 
     if (button === 'A') {
       if (!hasJoined) {
+        // Block joining while someone else is actively mid-flow.
+        // They must finish (or be cancelled via B) before a new player can join.
+        const someoneIsPicking = players.some(
+          (p) => p !== null && (p.state === 'picking' || p.state === 'picking-side'),
+        )
+        if (someoneIsPicking) return
         joinController(devPath)
         return
       }

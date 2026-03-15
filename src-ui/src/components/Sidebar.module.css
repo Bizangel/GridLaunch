@@ -53,6 +53,10 @@
     color: var(--mt);
     cursor: not-allowed;
     transition: background 0.15s, color 0.15s, opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-sm);
 }
 
 .launchBtnActive {

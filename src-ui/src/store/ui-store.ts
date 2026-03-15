@@ -54,7 +54,7 @@ export const useUIState = create<State & Actions>((set) => ({
     set({ phase: 'join-players', selectedGameId: gameId }),
 
   changeGame: () =>
-    set({ phase: 'select-game', players: emptyPlayers, activePickerIdx: null, gameCursor: 0 }),
+    set({ phase: 'select-game', selectedGameId: null, players: emptyPlayers, activePickerIdx: null, gameCursor: 0 }),
 
   toggleOrientation: () =>
     set((s) => ({
