@@ -1,29 +1,32 @@
 .launcher {
     display: grid;
-    grid-template-rows: 48px 1fr 34px;
-    height: 100vh;
+    grid-template-rows: calc(var(--u) * 2.5) 1fr calc(var(--u) * 1.8);
+    height: 100%;
+    overflow: hidden;
     background: var(--bg);
 }
 
 .body {
     display: grid;
-    grid-template-columns: 1fr 220px;
+    grid-template-columns: 1fr calc(var(--u) * 12);
     min-height: 0;
     overflow: hidden;
 }
 
 .gamePane {
-    padding: 18px 20px;
+    padding: var(--sp-lg) var(--sp-xl);
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: var(--sp-md);
     overflow-y: auto;
+    min-height: 0;
 }
 
 .sectionLabel {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
-    letter-spacing: .1em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    flex-shrink: 0;
 }

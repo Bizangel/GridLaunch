@@ -1,21 +1,20 @@
 .grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: var(--sp-sm);
     align-content: start;
 }
 
-/* Confirm row spans all 4 columns */
 .confirmRow {
     grid-column: 1 / -1;
     background: var(--surf2);
     border: 1px solid var(--bdr2);
-    border-radius: 6px;
-    padding: 10px 14px;
+    border-radius: var(--r-md);
+    padding: var(--sp-sm) var(--sp-lg);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 4px;
+    margin-top: var(--sp-xs);
     transition: border-color 0.15s, background 0.15s;
 }
 
@@ -27,12 +26,12 @@
 .confirmGame {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--sp-md);
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
+    width: calc(var(--u) * 0.42);
+    height: calc(var(--u) * 0.42);
     border-radius: 50%;
     background: var(--mt);
     flex-shrink: 0;
@@ -45,7 +44,7 @@
 
 .confirmName {
     font-family: var(--font-cond);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 600;
     color: var(--mt);
     transition: color 0.15s;
@@ -57,16 +56,16 @@
 
 .confirmHint {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
-    margin-top: 1px;
+    margin-top: 2px;
 }
 
 .confirmBtn {
     font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 5px 12px;
-    border-radius: 4px;
+    font-size: var(--fs-xs);
+    padding: var(--sp-xs) var(--sp-md);
+    border-radius: var(--r-sm);
     background: var(--dim);
     color: var(--mt);
     border: none;
@@ -85,11 +84,10 @@
     opacity: 0.85;
 }
 
-/* Game cards */
 .card {
     background: var(--surf2);
     border: 1px solid var(--bdr);
-    border-radius: 6px;
+    border-radius: var(--r-md);
     overflow: hidden;
     cursor: pointer;
     transition: border-color 0.12s, transform 0.1s, opacity 0.2s;
@@ -121,28 +119,28 @@
 
 .thumb {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16/9;
 }
 
 .selectedBadge {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: var(--sp-xs);
+    right: var(--sp-xs);
     background: var(--p1);
     color: #000;
     font-family: var(--font-mono);
-    font-size: 9px;
-    padding: 2px 5px;
-    border-radius: 3px;
+    font-size: var(--fs-xs);
+    padding: calc(var(--u) * 0.08) var(--sp-xs);
+    border-radius: var(--r-sm);
 }
 
 .info {
-    padding: 6px 8px 8px;
+    padding: var(--sp-xs) var(--sp-sm) var(--sp-sm);
 }
 
 .title {
     font-family: var(--font-cond);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     font-weight: 600;
     color: var(--tx);
     white-space: nowrap;
@@ -151,7 +149,7 @@
 }
 
 .desc {
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
     margin-top: 2px;
     white-space: nowrap;

@@ -1,7 +1,7 @@
 .list {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: var(--sp-xs);
     transition: opacity 0.2s, filter 0.2s;
 }
 
@@ -14,9 +14,9 @@
 .row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 5px;
+    gap: var(--sp-sm);
+    padding: var(--sp-xs) var(--sp-sm);
+    border-radius: var(--r-md);
     border: 1px solid var(--bdr);
     background: var(--surf2);
     position: relative;
@@ -42,13 +42,13 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 3px;
+    width: calc(var(--u) * 0.16);
 }
 
 .icon {
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
+    width: calc(var(--u) * 1.15);
+    height: calc(var(--u) * 1.15);
+    border-radius: var(--r-sm);
     background: var(--dim);
     display: flex;
     align-items: center;
@@ -62,7 +62,7 @@
 }
 
 .name {
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--tx);
     white-space: nowrap;
     overflow: hidden;
@@ -71,16 +71,16 @@
 
 .sub {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
     margin-top: 1px;
 }
 
 .badge {
     font-family: var(--font-mono);
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 3px;
+    font-size: var(--fs-xs);
+    padding: calc(var(--u) * 0.08) var(--sp-sm);
+    border-radius: var(--r-sm);
     background: var(--dim);
     color: var(--mt);
     flex-shrink: 0;

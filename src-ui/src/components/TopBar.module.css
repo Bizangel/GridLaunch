@@ -4,33 +4,32 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
-    height: 48px;
+    padding: 0 var(--sp-xl);
     flex-shrink: 0;
 }
 
 .logo {
     font-family: var(--font-cond);
-    font-size: 16px;
+    font-size: var(--fs-lg);
     font-weight: 600;
     letter-spacing: 0.12em;
     color: var(--p1);
     text-transform: uppercase;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--sp-sm);
 }
 
 .logoIcon {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: calc(var(--u) * 0.15);
 }
 
 .logoHalf {
     display: block;
-    width: 8px;
-    height: 20px;
+    width: calc(var(--u) * 0.42);
+    height: calc(var(--u) * 1.05);
     background: var(--p1);
     border-radius: 1px;
 }
@@ -42,14 +41,14 @@
 .splitToggle {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--sp-sm);
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--mt);
     cursor: pointer;
-    padding: 4px 10px;
+    padding: var(--sp-xs) var(--sp-md);
     border: 1px solid var(--bdr2);
-    border-radius: 4px;
+    border-radius: var(--r-sm);
     background: transparent;
     transition: border-color 0.15s, color 0.15s;
     text-transform: lowercase;
@@ -61,8 +60,8 @@
 }
 
 .splitIcon {
-    width: 28px;
-    height: 18px;
+    width: calc(var(--u) * 1.46);
+    height: calc(var(--u) * 0.94);
     border: 1px solid currentColor;
     border-radius: 2px;
     overflow: hidden;
@@ -90,19 +89,18 @@
 
 .ctrlCount {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--mt);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--sp-sm);
 }
 
 .statusDot {
-    width: 6px;
-    height: 6px;
+    width: calc(var(--u) * 0.31);
+    height: calc(var(--u) * 0.31);
     border-radius: 50%;
     background: var(--p1);
-    display: inline-block;
     animation: pulse 2s infinite;
 }
 
@@ -110,10 +108,10 @@
 
     0%,
     100% {
-        opacity: 1;
+        opacity: 1
     }
 
     50% {
-        opacity: 0.4;
+        opacity: 0.4
     }
 }

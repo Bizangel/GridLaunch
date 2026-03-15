@@ -16,13 +16,17 @@ export const CONTROLLERS: Controller[] = [
   { id: 1, name: 'Xbox Series X',    devPath: '/dev/input/js1' },
   { id: 2, name: '8Bitdo Pro 2',     devPath: '/dev/input/js2' },
   { id: 3, name: 'Steam Controller', devPath: '/dev/input/js3' },
+  { id: 4, name: 'Xbox 360 Controller', devPath: '/dev/input/js4' },
+  { id: 5, name: 'Keychron Link', devPath: '/dev/input/js5' },
 ]
 
 export const PROFILES: Profile[] = [
   { id: 0, name: 'Player One',   saveSlot: 'slot_1', initials: 'P1' },
   { id: 1, name: 'Giluxe',       saveSlot: 'slot_4', initials: 'GX' },
   { id: 2, name: 'Guest',        saveSlot: 'slot_0', initials: 'GU' },
-  { id: 3, name: 'Speedrunner',  saveSlot: 'slot_7', initials: 'SR' },
+  { id: 3, name: 'Speedrunner', saveSlot: 'slot_7', initials: 'SR' },
+  { id: 4, name: 'GameGod', saveSlot: 'slot_7', initials: 'SR' },
+  { id: 5, name: 'Yet AnotherProfile',  saveSlot: 'slot_7', initials: 'SR' },
 ]
 
 export const PLAYER_COLORS = ['#00e5a0', '#00bfff', '#ff6b6b', '#ffd166'] as const

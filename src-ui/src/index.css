@@ -1,9 +1,19 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 * {
   margin: 0;
   padding: 0;
 }
 
 :root {
+  /* Scales from 1080p floor up to 4K, capped so it doesn't go wild on ultrawide */
+  --u: clamp(16px, 1.1vw, 32px);
+
+  /* Colors */
   --bg: #0d0f14;
   --surf: #13161d;
   --surf2: #1a1e28;
@@ -16,9 +26,51 @@
   --p2: #00bfff;
   --p3: #ff6b6b;
   --p4: #ffd166;
+
+  /* Typography */
   --font-mono: monospace;
   --font-cond: sans-serif;
   --font-ui: sans-serif;
+
+  /* Font sizes — all relative to --u */
+  --fs-xs: calc(var(--u) * 0.625);
+  /* ~10px @ 1080p, ~17px @ 4K */
+  --fs-sm: calc(var(--u) * 0.75);
+  /* ~12px @ 1080p, ~21px @ 4K */
+  --fs-md: calc(var(--u) * 0.875);
+  /* ~14px @ 1080p, ~24px @ 4K */
+  --fs-lg: calc(var(--u) * 1.0);
+  /* ~16px @ 1080p, ~28px @ 4K */
+  --fs-xl: calc(var(--u) * 1.25);
+  /* ~20px @ 1080p, ~35px @ 4K */
+
+  /* Spacing */
+  --sp-xs: calc(var(--u) * 0.3);
+  --sp-sm: calc(var(--u) * 0.5);
+  --sp-md: calc(var(--u) * 0.75);
+  --sp-lg: calc(var(--u) * 1.0);
+  --sp-xl: calc(var(--u) * 1.5);
+
+  /* Radii */
+  --r-sm: calc(var(--u) * 0.2);
+  --r-md: calc(var(--u) * 0.3);
+  --r-lg: calc(var(--u) * 0.4);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {

@@ -21,7 +21,7 @@ export function Sidebar() {
         <ControllerList />
       </div>
 
-      <div className={styles.section} style={{ flex: 1, overflowY: 'auto' }}>
+      <div className={styles.section} style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         <ProfileList />
       </div>
 

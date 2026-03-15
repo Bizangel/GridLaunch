@@ -1,22 +1,23 @@
 .bar {
     background: rgba(0, 229, 160, 0.05);
     border: 1px solid rgba(0, 229, 160, 0.35);
-    border-radius: 6px;
-    padding: 10px 14px;
+    border-radius: var(--r-md);
+    padding: var(--sp-sm) var(--sp-lg);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
 }
 
 .gameInfo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--sp-md);
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
+    width: calc(var(--u) * 0.42);
+    height: calc(var(--u) * 0.42);
     border-radius: 50%;
     background: var(--p1);
     flex-shrink: 0;
@@ -24,30 +25,30 @@
 
 .name {
     font-family: var(--font-cond);
-    font-size: 14px;
+    font-size: var(--fs-lg);
     font-weight: 600;
     color: var(--p1);
 }
 
 .sub {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--p1);
     opacity: 0.7;
-    margin-top: 1px;
+    margin-top: 2px;
 }
 
 .changeBtn {
     font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 3px;
+    font-size: var(--fs-xs);
+    padding: var(--sp-xs) var(--sp-md);
+    border-radius: var(--r-sm);
     background: var(--dim);
     color: var(--mt);
     border: none;
     cursor: pointer;
-    transition: background 0.12s, color 0.12s;
     text-transform: lowercase;
+    transition: background 0.12s, color 0.12s;
 }
 
 .changeBtn:hover {

@@ -1,46 +1,45 @@
 .bar {
     background: var(--surf);
     border-top: 1px solid var(--bdr2);
-    padding: 6px 16px;
+    padding: 0 var(--sp-xl);
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
-    min-height: 34px;
 }
 
 .hints {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--sp-xl);
     flex-wrap: wrap;
 }
 
 .hint {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: var(--sp-xs);
 }
 
 .key {
     background: var(--dim);
     color: var(--tx);
     font-family: var(--font-cond);
-    font-size: 10px;
+    font-size: var(--fs-sm);
     font-weight: 600;
-    border-radius: 3px;
-    padding: 2px 6px;
+    border-radius: var(--r-sm);
+    padding: calc(var(--u) * 0.1) var(--sp-sm);
     letter-spacing: 0.04em;
 }
 
 .label {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
 }
 
 .slotsOpen {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
 }

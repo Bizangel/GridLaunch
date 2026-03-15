@@ -1,7 +1,7 @@
 .section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--sp-sm);
     transition: opacity 0.2s, filter 0.2s;
 }
 
@@ -13,14 +13,14 @@
 
 .title {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--mt);
 }
 
 .pickerHint {
-    font-size: 10px;
+    font-size: var(--fs-xs);
     letter-spacing: 0;
     text-transform: none;
 }
@@ -28,15 +28,15 @@
 .list {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: var(--sp-xs);
 }
 
 .row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 5px;
+    gap: var(--sp-sm);
+    padding: var(--sp-xs) var(--sp-sm);
+    border-radius: var(--r-md);
     border: 1px solid var(--bdr);
     background: var(--surf2);
     cursor: default;
@@ -56,15 +56,15 @@
 }
 
 .avatar {
-    width: 22px;
-    height: 22px;
+    width: calc(var(--u) * 1.15);
+    height: calc(var(--u) * 1.15);
     border-radius: 50%;
     background: var(--dim);
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-cond);
-    font-size: 9px;
+    font-size: var(--fs-xs);
     font-weight: 600;
     color: var(--mt);
     flex-shrink: 0;
@@ -76,7 +76,7 @@
 }
 
 .name {
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--tx);
     white-space: nowrap;
     overflow: hidden;
@@ -85,21 +85,21 @@
 
 .save {
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
     margin-top: 1px;
 }
 
 .ownerBadge {
     font-family: var(--font-mono);
-    font-size: 9px;
-    padding: 2px 5px;
-    border-radius: 3px;
+    font-size: var(--fs-xs);
+    padding: calc(var(--u) * 0.08) var(--sp-xs);
+    border-radius: var(--r-sm);
     flex-shrink: 0;
 }
 
 .selectHint {
-    font-size: 10px;
+    font-size: var(--fs-xs);
     color: var(--mt);
     flex-shrink: 0;
 }
