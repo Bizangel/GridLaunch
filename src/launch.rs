@@ -1,9 +1,12 @@
 use crate::events::LaunchRequestedEvent;
 use crate::game_instance::GameInstance;
+use crate::kwin_window_handling::load_kwin_script_dbus;
+use crate::kwin_window_handling::unload_kwin_script_dbus;
 use crate::remapper_thread::RemapperThread;
 use std::env;
 use std::fs;
 use std::path::Path;
+use std::path::PathBuf;
 use std::process;
 use x11rb::connection::Connection;
 use x11rb::protocol::randr::ConnectionExt;
@@ -115,6 +118,11 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
         return;
     };
 
+    load_kwin_script_dbus(PathBuf::from(
+        "/home/arcanzu/workplace/gridlaunch/src/assets/kwin_splitscreen.js",
+    ))
+    .expect("Unable to load kwin script");
+
     // hardcode 2 player horizontal split-screen for now
     let instance_height = monitor.height / 2;
     let instance_width = monitor.width;
@@ -130,6 +138,9 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
             instance_width,
             instance_height,
         ));
+
+        // gives time for windows to settle etc.
+        std::thread::sleep(std::time::Duration::from_millis(100));
     }
     std::thread::sleep(std::time::Duration::from_secs(3));
 
@@ -163,6 +174,8 @@ pub fn spawn_games(event: LaunchRequestedEvent) {
     for handle in remapper_threads.drain(..) {
         handle.stop().expect("Error stopping remapper threads");
     }
+
+    unload_kwin_script_dbus().expect("Unable to unload kwin script");
 
     println!("All handles returned")
 }

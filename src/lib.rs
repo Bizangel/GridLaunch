@@ -3,6 +3,7 @@ pub mod events;
 pub mod game_instance;
 pub mod gamepad;
 pub mod gamepad_monitor;
+pub mod kwin_window_handling;
 pub mod launch;
 pub mod remapper_thread;
 pub mod utils;

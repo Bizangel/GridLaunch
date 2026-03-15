@@ -12,6 +12,7 @@ tao = "0.34.6"
 udev = "0.9.3"
 wry = "0.54.2"
 x11rb = { version = "0.13.2", features = ["randr"] }
+zbus = "5.14.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = "0.18.2"
