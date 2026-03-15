@@ -1,7 +1,7 @@
 use super::WryWebViewApp;
 use tao::{event::Event, event_loop::ControlFlow};
 
-impl<T: Send + 'static, S: 'static> WryWebViewApp<T, S> {
+impl<T: Send + 'static, S: 'static, M: Send + 'static> WryWebViewApp<T, S, M> {
     pub fn run(mut self) -> ! {
         let event_loop = self.event_loop.take().expect("Event loop already consumed");
         event_loop.run(move |event, _, control_flow| {

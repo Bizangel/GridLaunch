@@ -1,3 +1,5 @@
+use std::{collections::HashMap, path::PathBuf};
+
 use crate::gamepad::AppGamepadButtonEvent;
 use serde::{Deserialize, Serialize};
 
@@ -15,6 +17,11 @@ pub enum FromWebViewEvent {
     WebViewReady,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct GamepadsUpdateEvent {
+    pub gamepads: HashMap<PathBuf, String>,
+}
+
 // Events generated to be handled for the main loop
 #[derive(Debug, Clone)]
 pub enum GridLaunchEvent {
@@ -26,4 +33,10 @@ pub enum GridLaunchEvent {
 #[serde(tag = "type")]
 pub enum ToWebViewEvent {
     AppGamepadButtonEvent(AppGamepadButtonEvent),
+    GamepadsUpdate(GamepadsUpdateEvent),
+}
+
+#[derive(Debug, Clone)]
+pub enum GridLaunchWorkerEvent {
+    EmitGamepadUpdate,
 }

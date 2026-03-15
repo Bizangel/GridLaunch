@@ -1,7 +1,7 @@
 use super::WryWebViewApp;
 use tao::{event::WindowEvent, event_loop::ControlFlow, keyboard::Key};
 
-impl<T: Send + 'static, S: 'static> WryWebViewApp<T, S> {
+impl<T: Send + 'static, S: 'static, M: Send + 'static> WryWebViewApp<T, S, M> {
     pub fn handle_window_event(&mut self, event: &WindowEvent, control_flow: &mut ControlFlow) {
         match event {
             WindowEvent::KeyboardInput { event, .. } => {

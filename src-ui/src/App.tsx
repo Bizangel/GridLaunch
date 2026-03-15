@@ -8,13 +8,18 @@ import styles from './App.module.css'
 import { useCallback } from 'react'
 import { useOnWebviewLoaded } from './hooks/useOnWebviewLoaded'
 import { sendIPCEvent } from './ipc/common'
+import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
 
 function App() {
   const phase = useUIState((s) => s.phase)
 
   useOnWebviewLoaded(useCallback(() => {
     sendIPCEvent({type: "WebViewReady"})
-  },[]))
+  }, []))
+
+  useWebViewEventHandler("GamepadsUpdate", (ev) => {
+    console.log(ev)
+  })
 
   return (
     <div className={styles.launcher}>

@@ -1,18 +1,19 @@
 use crate::wry_ui_helper::stop_signal::StopSignal;
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread::JoinHandle;
 use tao::event_loop::{EventLoop, EventLoopProxy};
 use tao::window::Window;
 use wry::{WebView, http::Request};
 
 pub type AppProxy<T> = EventLoopProxy<T>;
-pub type AppEventHandler<T, S> = fn(event: T, &mut WryWebViewApp<T, S>);
+pub type AppEventHandler<T, S, M> = fn(event: T, &mut WryWebViewApp<T, S, M>);
 pub type IPCHandler<T> = fn(Request<String>, &AppProxy<T>);
-pub type WorkerTask<T> = fn(StopSignal, &AppProxy<T>);
+pub type WorkerTask<T, M> = fn(StopSignal, Receiver<M>, AppProxy<T>);
 
-pub struct WryWebViewAppBuilder<T: Send + 'static, S: 'static> {
+pub struct WryWebViewAppBuilder<T: Send + 'static, S: 'static, M: 'static> {
     ui_title_name: String,
-    event_handler: Option<AppEventHandler<T, S>>,
-    worker_functions: Vec<WorkerTask<T>>,
+    event_handler: Option<AppEventHandler<T, S, M>>,
+    worker_functions: Vec<WorkerTask<T, M>>,
     webview_ipc_handler: Option<IPCHandler<T>>,
     webview_url: String,
     webview_html: Option<String>,
@@ -23,12 +24,13 @@ pub struct WryWebViewAppBuilder<T: Send + 'static, S: 'static> {
     initial_state: Option<S>,
 }
 
-pub struct WryWebViewApp<T: Send + 'static, S: 'static> {
+pub struct WryWebViewApp<T: Send + 'static, S: 'static, M: 'static> {
     worker_threads: Vec<JoinHandle<()>>,
+    worker_txs: Vec<Sender<M>>,
     workers_stop_signal: StopSignal,
     webview: WebView,
     _window: Window,
-    event_handler: AppEventHandler<T, S>,
+    event_handler: AppEventHandler<T, S, M>,
     event_loop: Option<EventLoop<T>>,
     ui_proxy: AppProxy<T>,
     // Public and modifiable by user
