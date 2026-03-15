@@ -8,6 +8,8 @@ use gridlaunch::wry_ui_helper::{WryWebViewApp, WryWebViewAppBuilder};
 use tao::event_loop::EventLoopProxy;
 use wry::http::Request;
 
+pub struct GridLaunchState {}
+
 fn main() -> Result<(), String> {
     let webview_ipc_handler =
         move |req: Request<String>, event_proxy: &EventLoopProxy<GridLaunchEvent>| {
@@ -20,24 +22,26 @@ fn main() -> Result<(), String> {
         };
 
     let event_handler =
-        move |event: GridLaunchEvent, app: &mut WryWebViewApp<GridLaunchEvent>| match event {
-            GridLaunchEvent::ForwardToWebViewEvent(event) => {
-                let Ok(evpayload) = serde_json::to_string(&event) else {
-                    return;
-                };
+        move |event: GridLaunchEvent, app: &mut WryWebViewApp<GridLaunchEvent, GridLaunchState>| {
+            match event {
+                GridLaunchEvent::ForwardToWebViewEvent(event) => {
+                    let Ok(evpayload) = serde_json::to_string(&event) else {
+                        return;
+                    };
 
-                let script = format!("window.postMessage({}, '*');", evpayload);
-                app.webview_eval(&script);
+                    let script = format!("window.postMessage({}, '*');", evpayload);
+                    app.webview_eval(&script);
+                }
+                GridLaunchEvent::FromWebViewEvent(event) => match event {
+                    FromWebViewEvent::LaunchRequested(launch_event) => {
+                        spawn_games(launch_event);
+                    }
+                    FromWebViewEvent::WebViewReady => {
+                        println!("Webview ready!");
+                    }
+                },
+                _ => println!("Received event: {:#?}", event),
             }
-            GridLaunchEvent::FromWebViewEvent(event) => match event {
-                FromWebViewEvent::LaunchRequested(launch_event) => {
-                    spawn_games(launch_event);
-                }
-                FromWebViewEvent::WebViewReady => {
-                    println!("Webview ready!");
-                }
-            },
-            _ => println!("Received event: {:#?}", event),
         };
 
     let mut builder = WryWebViewAppBuilder::new()

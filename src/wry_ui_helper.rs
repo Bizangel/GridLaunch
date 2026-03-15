@@ -5,13 +5,13 @@ use tao::window::Window;
 use wry::{WebView, http::Request};
 
 pub type AppProxy<T> = EventLoopProxy<T>;
-pub type AppEventHandler<T> = fn(event: T, &mut WryWebViewApp<T>); // TODO: add state
+pub type AppEventHandler<T, S> = fn(event: T, &mut WryWebViewApp<T, S>);
 pub type IPCHandler<T> = fn(Request<String>, &AppProxy<T>);
 pub type WorkerTask<T> = fn(StopSignal, &AppProxy<T>);
 
-pub struct WryWebViewAppBuilder<T: Send + 'static> {
+pub struct WryWebViewAppBuilder<T: Send + 'static, S: 'static> {
     ui_title_name: String,
-    event_handler: Option<AppEventHandler<T>>,
+    event_handler: Option<AppEventHandler<T, S>>,
     worker_functions: Vec<WorkerTask<T>>,
     webview_ipc_handler: Option<IPCHandler<T>>,
     webview_url: String,
@@ -20,16 +20,19 @@ pub struct WryWebViewAppBuilder<T: Send + 'static> {
 
     ui_size_width_px: u32,
     ui_size_height_px: u32,
+    initial_state: Option<S>,
 }
 
-pub struct WryWebViewApp<T: Send + 'static> {
+pub struct WryWebViewApp<T: Send + 'static, S: 'static> {
     worker_threads: Vec<JoinHandle<()>>,
     workers_stop_signal: StopSignal,
     webview: WebView,
     _window: Window,
-    event_handler: AppEventHandler<T>,
+    event_handler: AppEventHandler<T, S>,
     event_loop: Option<EventLoop<T>>,
     ui_proxy: AppProxy<T>,
+    // Public and modifiable by user
+    pub state: S,
 }
 
 pub mod common;

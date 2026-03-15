@@ -8,7 +8,7 @@ use crate::wry_ui_helper::stop_signal::StopSignal;
 use std::thread::JoinHandle;
 use tao::event_loop::EventLoopBuilder;
 
-impl<T: Send + 'static> WryWebViewAppBuilder<T> {
+impl<T: Send + 'static, S: 'static> WryWebViewAppBuilder<T, S> {
     pub fn new() -> Self {
         let devtools_enabled = true;
         #[cfg(not(debug_assertions))]
@@ -28,10 +28,11 @@ impl<T: Send + 'static> WryWebViewAppBuilder<T> {
             // Required
             ui_title_name: WRY_APP_BUILDER_DEFAULT_TITLE.to_string(),
             webview_ipc_handler: None,
+            initial_state: None,
         }
     }
 
-    pub fn with_event_handler(mut self, event_handler: AppEventHandler<T>) -> Self {
+    pub fn with_event_handler(mut self, event_handler: AppEventHandler<T, S>) -> Self {
         self.event_handler = Some(event_handler);
         self
     }
@@ -72,11 +73,20 @@ impl<T: Send + 'static> WryWebViewAppBuilder<T> {
         self
     }
 
+    pub fn with_initial_state(mut self, state: impl Into<S>) -> Self {
+        self.initial_state = Some(state.into());
+        self
+    }
+
     // Actually build
-    pub fn build(&mut self) -> WryWebViewApp<T> {
+    pub fn build(&mut self) -> WryWebViewApp<T, S> {
         let event_handler = self
             .event_handler
             .expect("No event handler given for WryApp unable to start");
+        let init_state = self
+            .initial_state
+            .take()
+            .expect("No initial state given for WryApp unable to start");
         let event_loop = EventLoopBuilder::<T>::with_user_event().build();
         let worker_stop_signal = StopSignal::new();
         let (window, webview) = self.build_window_with_webview(&event_loop);
@@ -90,7 +100,7 @@ impl<T: Send + 'static> WryWebViewAppBuilder<T> {
             })
             .collect();
 
-        return WryWebViewApp::<T> {
+        return WryWebViewApp::<T, S> {
             webview: webview,
             worker_threads: worker_threads,
             workers_stop_signal: worker_stop_signal,
@@ -98,6 +108,7 @@ impl<T: Send + 'static> WryWebViewAppBuilder<T> {
             event_handler: event_handler,
             ui_proxy: event_loop.create_proxy(),
             event_loop: Some(event_loop),
+            state: init_state,
         };
     }
 }

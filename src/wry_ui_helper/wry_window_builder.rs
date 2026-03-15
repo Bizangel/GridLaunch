@@ -10,7 +10,7 @@ use wry::{
 };
 use wry::{WebViewBuilder, http::Request};
 
-impl<T: Send + 'static> WryWebViewAppBuilder<T> {
+impl<T: Send + 'static, S: 'static> WryWebViewAppBuilder<T, S> {
     pub fn build_window_with_webview(&mut self, event_loop: &EventLoop<T>) -> (Window, WebView) {
         let window = WindowBuilder::new()
             .with_title(self.ui_title_name.clone())
