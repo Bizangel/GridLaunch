@@ -7,4 +7,5 @@ use crate::{events::worker_event::GamepadsUpdateEvent, gamepad::AppGamepadButton
 pub enum ToWebViewEvent {
     AppGamepadButtonEvent(AppGamepadButtonEvent),
     GamepadsUpdate(GamepadsUpdateEvent),
+    LaunchReturned,
 }

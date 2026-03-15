@@ -9,5 +9,6 @@ pub mod kwin_window_handling;
 pub mod launch;
 pub mod monitor;
 pub mod remapper_thread;
+pub mod spawner_thread;
 pub mod utils;
 pub mod wry_ui_helper;

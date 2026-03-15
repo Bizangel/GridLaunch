@@ -3,7 +3,6 @@ use crate::{
         fromwebview_event::FromWebViewEvent, gridlaunch_event::GridLaunchEvent,
         worker_event::GridLaunchWorkerEvent,
     },
-    launch::spawn_games,
     wry_ui_helper::WryWebViewApp,
 };
 
@@ -23,7 +22,7 @@ pub fn handle_event(
         },
         GridLaunchEvent::FromWebViewEvent(event) => match event {
             FromWebViewEvent::LaunchRequested(launch_event) => {
-                spawn_games(launch_event);
+                app.broadcast_to_workers(GridLaunchWorkerEvent::SpawnInstances(launch_event));
             }
             FromWebViewEvent::WebViewReady => {
                 app.broadcast_to_workers(GridLaunchWorkerEvent::EmitGamepadUpdate);

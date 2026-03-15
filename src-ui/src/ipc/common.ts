@@ -24,4 +24,9 @@ export type GamepadsUpdateEvent = {
     type: 'GamepadsUpdate',
     gamepads: Record<string, string>
 }
-export type ToWebViewEvent = GamepadButtonPressedEvent | GamepadsUpdateEvent
+
+export type LaunchReturnedEvent = {
+    type: 'LaunchReturned'
+}
+
+export type ToWebViewEvent = GamepadButtonPressedEvent | GamepadsUpdateEvent | LaunchReturnedEvent

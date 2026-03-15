@@ -20,6 +20,10 @@ function App() {
     sendIPCEvent({ type: 'WebViewReady' })
   }, []))
 
+  useWebViewEventHandler("LaunchReturned", () => {
+    console.log("Launch returned")
+  })
+
   useWebViewEventHandler(
     'AppGamepadButtonEvent',
     useCallback((ev: GamepadButtonPressedEvent) => handleButtonEvent(ev), [handleButtonEvent]),

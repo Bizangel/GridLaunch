@@ -1,3 +1,4 @@
+use crate::events::fromwebview_event::LaunchRequestedEvent;
 use serde::Serialize;
 use std::{collections::HashMap, path::PathBuf};
 
@@ -9,4 +10,5 @@ pub struct GamepadsUpdateEvent {
 #[derive(Debug, Clone)]
 pub enum GridLaunchWorkerEvent {
     EmitGamepadUpdate,
+    SpawnInstances(LaunchRequestedEvent),
 }

@@ -171,7 +171,7 @@ impl GamepadMonitor {
                 Some(GridLaunchWorkerEvent::EmitGamepadUpdate) => {
                     self.emit_gamepad_update();
                 }
-                None => {}
+                _ => {}
             }
 
             self.handle_udev_input_monitor_events();

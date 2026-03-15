@@ -7,7 +7,7 @@ use crate::monitor::x11_get_main_monitor;
 use crate::remapper_thread::RemapperThread;
 use std::path::PathBuf;
 
-pub fn spawn_games(event: LaunchRequestedEvent) {
+pub fn spawn_games_and_wait(event: LaunchRequestedEvent) {
     let mut instances: Vec<GameInstance> = Vec::new();
     let mut remapper_threads: Vec<RemapperThread> = Vec::new();
 
