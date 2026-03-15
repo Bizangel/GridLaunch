@@ -25,7 +25,7 @@ export function GameGrid() {
   useEffect(() => {
     if (!isPhase1) return
     cardRefs.current[gameCursor]?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-  }, [gameCursor, isPhase1])
+  }, [gameCursor, isPhase1, cardRefs])
 
   return (
     <div className={styles.grid}>
