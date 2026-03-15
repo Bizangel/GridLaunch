@@ -5,9 +5,16 @@ import { ConfirmBar } from './components/ConfirmBar'
 import { Sidebar } from './components/Sidebar'
 import { HintBar } from './components/Hintbar'
 import styles from './App.module.css'
+import { useCallback } from 'react'
+import { useOnWebviewLoaded } from './hooks/useOnWebviewLoaded'
+import { sendIPCEvent } from './ipc/common'
 
 function App() {
   const phase = useUIState((s) => s.phase)
+
+  useOnWebviewLoaded(useCallback(() => {
+    sendIPCEvent({type: "WebViewReady"})
+  },[]))
 
   return (
     <div className={styles.launcher}>

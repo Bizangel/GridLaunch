@@ -12,6 +12,7 @@ pub struct LaunchRequestedEvent {
 #[serde(tag = "type")]
 pub enum FromWebViewEvent {
     LaunchRequested(LaunchRequestedEvent),
+    WebViewReady,
 }
 
 // Events generated to be handled for the main loop

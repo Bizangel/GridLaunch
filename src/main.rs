@@ -33,6 +33,9 @@ fn main() -> Result<(), String> {
                 FromWebViewEvent::LaunchRequested(launch_event) => {
                     spawn_games(launch_event);
                 }
+                FromWebViewEvent::WebViewReady => {
+                    println!("Webview ready!");
+                }
             },
             _ => println!("Received event: {:#?}", event),
         };

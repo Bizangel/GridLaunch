@@ -6,7 +6,12 @@ export type LaunchRequestedEvent = {
     users: string[]
 }
 
-export type FromWebViewEvent = LaunchRequestedEvent;
+export type WebViewReadyEvent = {
+    type: 'WebViewReady'
+}
+
+
+export type FromWebViewEvent = LaunchRequestedEvent | WebViewReadyEvent;
 export const sendIPCEvent = (event: FromWebViewEvent) => {
     window.ipc.postMessage(JSON.stringify(event));
 }
