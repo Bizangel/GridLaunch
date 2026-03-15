@@ -15,7 +15,6 @@ pub fn handle_event(
         GridLaunchEvent::ForwardToWebViewEvent(event) => match serde_json::to_string(&event) {
             Ok(evpayload) => {
                 let script = format!("window.postMessage({}, '*');", evpayload);
-                println!("script: {}", script);
                 app.webview_eval(&script);
             }
             Err(err) => {
