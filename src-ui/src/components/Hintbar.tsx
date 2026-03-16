@@ -4,24 +4,27 @@ import styles from './Hintbar.module.css'
 type Hint = { key: string; label: string; color?: string }
 
 export function HintBar() {
-  const phase = useUIState((s) => s.phase)
-  const players = useUIState((s) => s.players)
+  const phase           = useUIState((s) => s.phase)
+  const players         = useUIState((s) => s.players)
   const activePickerIdx = useUIState((s) => s.activePickerIdx)
+  const orientation     = useUIState((s) => s.splitOrientation)
 
-  const joined = players.filter(Boolean)
-  const ready = players.filter((p) => p?.state === 'ready')
+  const joined    = players.filter(Boolean)
+  const ready     = players.filter((p) => p?.state === 'ready')
   const openSlots = 4 - joined.length
 
-  const activePicker = activePickerIdx !== null ? players[activePickerIdx] : null
+  const activePicker     = activePickerIdx !== null ? players[activePickerIdx] : null
   const isPickingProfile = activePicker?.state === 'picking'
-  const isPickingSide = activePicker?.state === 'picking-side'
+  const isPickingSide    = activePicker?.state === 'picking-side'
+
+  const nextOrientation = orientation === 'horizontal' ? 'vertical' : 'horizontal'
 
   const hints: Hint[] = []
 
   if (phase === 'select-game') {
     hints.push({ key: '↑↓←→', label: 'browse' })
     hints.push({ key: 'A', label: 'confirm game' })
-  } else {
+  } else if (phase === 'join-players') {
     if (isPickingProfile) {
       hints.push({ key: '↑↓', label: 'pick profile' })
       hints.push({ key: 'A', label: 'confirm' })
@@ -33,6 +36,11 @@ export function HintBar() {
     if (ready.length >= 2) {
       hints.push({ key: 'Start', label: 'launch' })
     }
+  }
+
+  // Select is always available (except while launching)
+  if (phase !== 'launching') {
+    hints.push({ key: 'Select', label: `→ ${nextOrientation}` })
   }
 
   return (

@@ -19,6 +19,7 @@ export function useGamepadInput() {
   const syncControllers   = useUIState((s) => s.syncControllers)
   const confirmGame       = useUIState((s) => s.confirmGame)
   const changeGame        = useUIState((s) => s.changeGame)
+  const toggleOrientation = useUIState((s) => s.toggleOrientation)
   const joinController    = useUIState((s) => s.joinController)
   const unjoinByDevPath   = useUIState((s) => s.unjoinByDevPath)
   const unjoinPlayer      = useUIState((s) => s.unjoinPlayer)
@@ -52,6 +53,7 @@ export function useGamepadInput() {
       if (button === 'DpadDown')  gridNavRef.navigate?.('down')
       if (button === 'DpadUp')    gridNavRef.navigate?.('up')
       if (button === 'A')         confirmGame(games[gameCursor]?.name ?? '')
+      if (button === 'Select')    toggleOrientation()
       return
     }
 
@@ -62,6 +64,12 @@ export function useGamepadInput() {
     const myPlayer        = hasJoined ? players[mySlotIdx] : null
     const iAmActivePicker = activePickerIdx === mySlotIdx
     const activePicker    = activePickerIdx !== null ? players[activePickerIdx] : null
+
+    // Select — toggle split orientation, available in both phases
+    if (button === 'Select') {
+      toggleOrientation()
+      return
+    }
 
     // Start — any controller can trigger launch once all conditions are met
     // Conditions: ≥2 players, every joined player is 'ready', nobody mid-flow
@@ -178,7 +186,7 @@ export function useGamepadInput() {
 
   }, [
     phase, games, players, activePickerIdx, gameCursor, profileCursor, sideCursor,
-    confirmGame, changeGame, joinController, unjoinByDevPath, unjoinPlayer,
+    confirmGame, changeGame, toggleOrientation, joinController, unjoinByDevPath, unjoinPlayer,
     pickProfile, pickSide, moveProfileCursor, moveSideCursor,
   ])
 
