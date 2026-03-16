@@ -1,5 +1,6 @@
 pub const UI_TITLE_NAME: &str = "GridLaunch";
 pub const VITE_DEV_LOCALHOST_URL: &str = "http://localhost:5173";
+const MINIFIED_HTML_STR: &str = include_str!("../src-ui/dist/index.html");
 
 use gridlaunch::event_handler::handle_event;
 use gridlaunch::gamepad_monitor::gamepad_monitor_worker_main;
@@ -21,6 +22,10 @@ fn main() -> Result<(), String> {
     #[cfg(debug_assertions)]
     {
         builder = builder.with_url(VITE_DEV_LOCALHOST_URL);
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        builder = builder.with_html(MINIFIED_HTML_STR);
     }
 
     let app = builder.build();

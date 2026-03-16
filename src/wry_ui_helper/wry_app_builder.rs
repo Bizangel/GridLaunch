@@ -11,7 +11,11 @@ use tao::event_loop::EventLoopBuilder;
 
 impl<T: Send + 'static, S: 'static, M: 'static + Send> WryWebViewAppBuilder<T, S, M> {
     pub fn new() -> Self {
-        let devtools_enabled = true;
+        let devtools_enabled;
+        #[cfg(debug_assertions)]
+        {
+            devtools_enabled = true;
+        }
         #[cfg(not(debug_assertions))]
         {
             devtools_enabled = false;
