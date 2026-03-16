@@ -1,10 +1,10 @@
 import { useUIState } from '../store/ui-store'
-import { GAMES } from '../data'
 import styles from './LaunchingOverlay.module.css'
 
 export function LaunchingOverlay() {
-  const selectedGameId = useUIState((s) => s.selectedGameId)
-  const game = GAMES.find((g) => g.id === selectedGameId)
+  const games            = useUIState((s) => s.games)
+  const selectedGameName = useUIState((s) => s.selectedGameName)
+  const game = games.find((g) => g.name === selectedGameName)
 
   return (
     <div className={styles.overlay}>

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useUIState } from '../store/ui-store'
-import { GAMES, PROFILES } from '../data'
+import { PROFILES } from '../data'
 import { launchSession } from '../ipc/launchSession'
 import { gridNavRef } from './gridNavRef'
 import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from '../types'
@@ -8,6 +8,7 @@ import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from '../types'
 export function useGamepadInput() {
   // ── State (read) ────────────────────────────────────────────────────────
   const phase           = useUIState((s) => s.phase)
+  const games           = useUIState((s) => s.games)
   const players         = useUIState((s) => s.players)
   const activePickerIdx = useUIState((s) => s.activePickerIdx)
   const gameCursor      = useUIState((s) => s.gameCursor)
@@ -50,7 +51,7 @@ export function useGamepadInput() {
       if (button === 'DpadLeft')  gridNavRef.navigate?.('left')
       if (button === 'DpadDown')  gridNavRef.navigate?.('down')
       if (button === 'DpadUp')    gridNavRef.navigate?.('up')
-      if (button === 'A')         confirmGame(GAMES[gameCursor].id)
+      if (button === 'A')         confirmGame(games[gameCursor]?.name ?? '')
       return
     }
 
@@ -176,7 +177,7 @@ export function useGamepadInput() {
     }
 
   }, [
-    phase, players, activePickerIdx, gameCursor, profileCursor, sideCursor,
+    phase, games, players, activePickerIdx, gameCursor, profileCursor, sideCursor,
     confirmGame, changeGame, joinController, unjoinByDevPath, unjoinPlayer,
     pickProfile, pickSide, moveProfileCursor, moveSideCursor,
   ])

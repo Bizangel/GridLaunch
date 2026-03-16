@@ -5,6 +5,17 @@
     align-content: start;
 }
 
+.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-xl);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--mt);
+    letter-spacing: 0.08em;
+}
+
 .confirmRow {
     grid-column: 1 / -1;
     background: var(--surf2);
@@ -119,6 +130,14 @@
 .thumb {
     width: 100%;
     aspect-ratio: 16/9;
+    display: block;
+    object-fit: cover;
+}
+
+.thumbPlaceholder {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--dim);
 }
 
 .selectedBadge {

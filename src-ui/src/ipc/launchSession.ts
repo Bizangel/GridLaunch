@@ -1,5 +1,5 @@
 import { useUIState } from '../store/ui-store'
-import { GAMES, PROFILES } from '../data'
+import { PROFILES } from '../data'
 import { sendIPCEvent } from '../ipc/common'
 
 export function launchSession() {
@@ -14,7 +14,7 @@ export function launchSession() {
     }))
 
   console.log('Launching:', {
-    game:        GAMES.find((g) => g.id === s.selectedGameId)?.name,
+    game:        s.selectedGameName,
     orientation: s.splitOrientation,
     players:     readyPlayers,
   })
@@ -26,6 +26,5 @@ export function launchSession() {
     users:            readyPlayers.map((p) => p.profile),
   })
 
-  // Freeze UI — all input is ignored until LaunchReturned fires
   useUIState.getState().startLaunching()
 }

@@ -1,22 +1,23 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
-import { GAMES } from '../data'
-import type { Controller, Phase, PlayerSlot, SplitOrientation } from '../types'
+import type { Controller, Game, Phase, PlayerSlot, SplitOrientation } from '../types'
 
 type State = {
   phase: Phase
-  selectedGameId: number | null
+  games: Game[]
+  selectedGameName: string | null   // uses name as stable key
   splitOrientation: SplitOrientation
   connectedControllers: Controller[]
   players: [PlayerSlot, PlayerSlot, PlayerSlot, PlayerSlot]
   activePickerIdx: number | null
-  gameCursor: number      // index into GAMES array
+  gameCursor: number
   profileCursor: number
   sideCursor: number
 }
 
 type Actions = {
-  confirmGame: (gameId: number) => void
+  syncHandlers: (handlers: import('../types').GameHandler[]) => void
+  confirmGame: (gameName: string) => void
   changeGame: () => void
   toggleOrientation: () => void
   syncControllers: (gamepads: Record<string, string>) => void
@@ -44,7 +45,8 @@ function nextActiveIdx(players: State['players'], excludeIdx: number | null): nu
 
 export const useUIState = create<State & Actions>((set) => ({
   phase: 'select-game',
-  selectedGameId: null,
+  games: [],
+  selectedGameName: null,
   splitOrientation: 'horizontal',
   connectedControllers: [],
   players: emptyPlayers,
@@ -53,17 +55,30 @@ export const useUIState = create<State & Actions>((set) => ({
   profileCursor: 0,
   sideCursor: 0,
 
-  confirmGame: (gameId) =>
-    set({ phase: 'join-players', selectedGameId: gameId }),
+  syncHandlers: (handlers) =>
+    set((s) => ({
+      games: handlers.map((h) => ({
+        name:           h.name,
+        description:    h.description,
+        maxPlayers:     h.max_players,
+        imageBase64:    h.image_base_64,
+        executableArgs: h.executable_args,
+      })),
+      // Clamp cursor in case the new list is shorter
+      gameCursor: Math.min(s.gameCursor, Math.max(0, handlers.length - 1)),
+    })),
+
+  confirmGame: (gameName) =>
+    set({ phase: 'join-players', selectedGameName: gameName }),
 
   changeGame: () =>
     set((s) => ({
-      phase:           'select-game',
-      selectedGameId:  null,
-      players:         emptyPlayers,
-      activePickerIdx: null,
-      gameCursor:      s.selectedGameId !== null
-        ? GAMES.findIndex((g) => g.id === s.selectedGameId)
+      phase:            'select-game',
+      selectedGameName: null,
+      players:          emptyPlayers,
+      activePickerIdx:  null,
+      gameCursor:       s.selectedGameName !== null
+        ? Math.max(0, s.games.findIndex((g) => g.name === s.selectedGameName))
         : 0,
     })),
 
@@ -72,9 +87,6 @@ export const useUIState = create<State & Actions>((set) => ({
       splitOrientation: s.splitOrientation === 'horizontal' ? 'vertical' : 'horizontal',
     })),
 
-  // Receives the full current snapshot. Diffs against existing list:
-  // - controllers no longer in the snapshot are removed and their players unjoined
-  // - new controllers are added
   syncControllers: (gamepads) =>
     set(
       produce((draft: State) => {
@@ -82,8 +94,6 @@ export const useUIState = create<State & Actions>((set) => ({
           ([devPath, name]): Controller => ({ devPath, name }),
         )
         const incomingPaths = new Set(incoming.map((c) => c.devPath))
-
-        // Unjoin any player whose controller is no longer present
         draft.players.forEach((player, slotIdx) => {
           if (player && !incomingPaths.has(player.devPath)) {
             draft.players[slotIdx] = null
@@ -92,7 +102,6 @@ export const useUIState = create<State & Actions>((set) => ({
             }
           }
         })
-
         draft.connectedControllers = incoming
       }),
     ),
@@ -183,19 +192,17 @@ export const useUIState = create<State & Actions>((set) => ({
       sideCursor: (s.sideCursor + delta + sideCount) % sideCount,
     })),
 
-  // Transition to launching — UI freezes, all input ignored
   startLaunching: () =>
     set({ phase: 'launching' }),
 
-  // Game session ended — full reset back to initial state
   returnFromLaunch: () =>
     set({
-      phase:          'select-game',
-      selectedGameId: null,
-      players:        emptyPlayers,
-      activePickerIdx: null,
-      gameCursor:     0,
-      profileCursor:  0,
-      sideCursor:     0,
+      phase:            'select-game',
+      selectedGameName: null,
+      players:          emptyPlayers,
+      activePickerIdx:  null,
+      gameCursor:       0,
+      profileCursor:    0,
+      sideCursor:       0,
     }),
 }))

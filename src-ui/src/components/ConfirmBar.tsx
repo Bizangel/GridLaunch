@@ -1,12 +1,12 @@
 import { useUIState } from '../store/ui-store'
-import { GAMES } from '../data'
 import styles from './ConfirmBar.module.css'
 
 export function ConfirmBar() {
-  const selectedGameId = useUIState((s) => s.selectedGameId)
-  const changeGame = useUIState((s) => s.changeGame)
+  const games            = useUIState((s) => s.games)
+  const selectedGameName = useUIState((s) => s.selectedGameName)
+  const changeGame       = useUIState((s) => s.changeGame)
 
-  const game = GAMES.find((g) => g.id === selectedGameId)
+  const game = games.find((g) => g.name === selectedGameName)
   if (!game) return null
 
   return (

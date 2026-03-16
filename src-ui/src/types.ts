@@ -3,11 +3,11 @@ export type SplitOrientation = 'horizontal' | 'vertical'
 export type Phase = 'select-game' | 'join-players' | 'launching'
 
 export type Game = {
-  id: number
   name: string
   description: string
   maxPlayers: number
-  coverColor: string
+  imageBase64: string | null
+  executableArgs: string[]
 }
 
 export type Controller = {
@@ -45,11 +45,43 @@ export type GamepadButtonPressedEvent = {
   gamepad_devpath: string
 }
 
-// Full snapshot of currently connected controllers.
-// Record<devPath, gamepadName> — emitted on any change (add or remove).
 export type GamepadsUpdateEvent = {
   type: 'GamepadsUpdate'
   gamepads: Record<string, string>
 }
 
-export type ToWebViewEvent = GamepadButtonPressedEvent | GamepadsUpdateEvent
+export type LaunchReturnedEvent = {
+  type: 'LaunchReturned'
+}
+
+export type GameHandler = {
+  name: string
+  description: string
+  image_base_64: string | null
+  max_players: number
+  executable_args: string[]
+}
+
+export type GameHandlersUpdateEvent = {
+  type: 'GameHandlersUpdate'
+  handlers: GameHandler[]
+}
+
+export type ToWebViewEvent =
+  | GamepadButtonPressedEvent
+  | GamepadsUpdateEvent
+  | LaunchReturnedEvent
+  | GameHandlersUpdateEvent
+
+export type LaunchRequestedEvent = {
+  type: 'LaunchRequested'
+  splitscreen_type: string
+  gamepads: string[]
+  users: string[]
+}
+
+export type WebViewReadyEvent = {
+  type: 'WebViewReady'
+}
+
+export type FromWebViewEvent = LaunchRequestedEvent | WebViewReadyEvent

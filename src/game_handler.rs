@@ -28,7 +28,10 @@ impl GameHandler {
         match &self.image {
             Some(imagepath) => {
                 if !imagepath.is_file() {
-                    return Err(format!("Non existant image path given for game handler"));
+                    return Err(format!(
+                        "{} does not exist given for game handler",
+                        imagepath.to_string_lossy()
+                    ));
                 }
 
                 match fs::read(imagepath) {

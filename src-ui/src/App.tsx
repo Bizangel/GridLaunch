@@ -1,9 +1,10 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useUIState } from './store/ui-store'
 import { useWebViewEventHandler } from './hooks/useWebViewEventHandler'
 import { useOnWebviewLoaded } from './hooks/useOnWebviewLoaded'
 import { useGamepadInput } from './hooks/useGamepadInput'
 import { sendIPCEvent } from './ipc/common'
+import { gridScrollContainerRef } from './hooks/gridNavRef'
 import { TopBar } from './components/TopBar'
 import { GameGrid } from './components/GameGrid'
 import { ConfirmGameBar } from './components/ConfirmGamebar'
@@ -12,16 +13,29 @@ import { Sidebar } from './components/Sidebar'
 import { HintBar } from './components/Hintbar'
 import { LaunchingOverlay } from './components/LaunchingOverlay'
 import styles from './App.module.css'
-import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from './types'
+import type { GamepadButtonPressedEvent, GamepadsUpdateEvent, GameHandlersUpdateEvent } from './types'
 
 function App() {
   const phase            = useUIState((s) => s.phase)
   const returnFromLaunch = useUIState((s) => s.returnFromLaunch)
+  const syncHandlers     = useUIState((s) => s.syncHandlers)
   const { handleButtonEvent, handleGamepadsUpdate } = useGamepadInput()
+  const gridScrollRef    = useRef<HTMLDivElement>(null)
+
+  // Keep the module-level ref in sync with the DOM element
+  useEffect(() => {
+    gridScrollContainerRef.el = gridScrollRef.current
+    return () => { gridScrollContainerRef.el = null }
+  }, [])
 
   useOnWebviewLoaded(useCallback(() => {
     sendIPCEvent({ type: 'WebViewReady' })
   }, []))
+
+  useWebViewEventHandler(
+    'GameHandlersUpdate',
+    useCallback((ev: GameHandlersUpdateEvent) => syncHandlers(ev.handlers), [syncHandlers]),
+  )
 
   useWebViewEventHandler(
     'AppGamepadButtonEvent',
@@ -31,11 +45,6 @@ function App() {
   useWebViewEventHandler(
     'GamepadsUpdate',
     useCallback((ev: GamepadsUpdateEvent) => handleGamepadsUpdate(ev), [handleGamepadsUpdate]),
-  )
-
-    useWebViewEventHandler(
-    'GameHandlersUpdate',
-    (handlers) => {console.log("handlers", handlers.handlers)}
   )
 
   useWebViewEventHandler(
@@ -54,7 +63,7 @@ function App() {
         <main className={styles.gamePane}>
           <div className={styles.sectionLabel}>installed games</div>
 
-          <div className={styles.gridScroll}>
+          <div className={styles.gridScroll} ref={gridScrollRef}>
             <GameGrid />
           </div>
 

@@ -1,11 +1,11 @@
 import { useUIState } from '../store/ui-store'
-import { GAMES } from '../data'
 import styles from './GameGrid.module.css'
 
 export function ConfirmGameBar() {
-  const gameCursor = useUIState((s) => s.gameCursor)
+  const games       = useUIState((s) => s.games)
+  const gameCursor  = useUIState((s) => s.gameCursor)
   const confirmGame = useUIState((s) => s.confirmGame)
-  const focusedGame = GAMES[gameCursor]
+  const focusedGame = games[gameCursor]
 
   return (
     <div className={styles.confirmRow}>
@@ -15,14 +15,12 @@ export function ConfirmGameBar() {
           <div className={`${styles.confirmName} ${focusedGame ? styles.confirmNameActive : ''}`}>
             {focusedGame ? focusedGame.name : 'no game selected'}
           </div>
-          <div className={styles.confirmHint}>
-            press A to confirm · dpad to browse
-          </div>
+          <div className={styles.confirmHint}>press A to confirm · dpad to browse</div>
         </div>
       </div>
       <button
         className={`${styles.confirmBtn} ${focusedGame ? styles.confirmBtnActive : ''}`}
-        onClick={() => focusedGame && confirmGame(focusedGame.id)}
+        onClick={() => focusedGame && confirmGame(focusedGame.name)}
       >
         confirm A
       </button>
