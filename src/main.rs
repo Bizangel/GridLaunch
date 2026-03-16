@@ -5,9 +5,12 @@ use gridlaunch::event_handler::handle_event;
 use gridlaunch::gamepad_monitor::gamepad_monitor_worker_main;
 use gridlaunch::ipc_handler::ipc_handler;
 use gridlaunch::spawner_thread::spawner_thread_main;
+use gridlaunch::utils::ensure_handler_dir_exists;
 use gridlaunch::wry_ui_helper::WryWebViewAppBuilder;
 
 fn main() -> Result<(), String> {
+    ensure_handler_dir_exists().map_err(|err| err.to_string())?;
+
     let mut builder = WryWebViewAppBuilder::new()
         .with_title_name(UI_TITLE_NAME)
         .with_ipc_handler(ipc_handler)

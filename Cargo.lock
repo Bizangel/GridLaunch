@@ -1066,6 +1066,7 @@ dependencies = [
 name = "gridlaunch"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "evdev",
  "gtk",
  "nix 0.31.2",

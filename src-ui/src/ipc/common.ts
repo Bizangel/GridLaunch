@@ -29,4 +29,18 @@ export type LaunchReturnedEvent = {
     type: 'LaunchReturned'
 }
 
-export type ToWebViewEvent = GamepadButtonPressedEvent | GamepadsUpdateEvent | LaunchReturnedEvent
+export type GameHandler = {
+    type: 'GameHandlersUpdate',
+    name: string,
+    description: string,
+    image_base_64: string | null,
+    max_players: number,
+    executable_args: string[],
+}
+
+export type GameHandlersUpdateEvent = {
+    type: 'GameHandlersUpdate',
+    handlers: GameHandler[],
+}
+
+export type ToWebViewEvent = GamepadButtonPressedEvent | GamepadsUpdateEvent | LaunchReturnedEvent | GameHandlersUpdateEvent

@@ -1,8 +1,9 @@
 use crate::{
     events::{
         fromwebview_event::FromWebViewEvent, gridlaunch_event::GridLaunchEvent,
-        worker_event::GridLaunchWorkerEvent,
+        towebview_event::ToWebViewEvent, worker_event::GridLaunchWorkerEvent,
     },
+    game_handler::get_valid_game_handlers,
     wry_ui_helper::WryWebViewApp,
 };
 
@@ -26,6 +27,11 @@ pub fn handle_event(
             }
             FromWebViewEvent::WebViewReady => {
                 app.broadcast_to_workers(GridLaunchWorkerEvent::EmitGamepadUpdate);
+                // emit game handler data.
+                let handlers = get_valid_game_handlers();
+                app.emit(GridLaunchEvent::ForwardToWebViewEvent(
+                    ToWebViewEvent::GameHandlersUpdate { handlers },
+                ));
             }
         },
     }

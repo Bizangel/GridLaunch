@@ -1,5 +1,9 @@
 use std::collections::HashMap;
+use std::env;
+use std::fs;
+use std::io;
 use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
 use std::thread;
 use std::{process, thread::JoinHandle};
 
@@ -49,4 +53,47 @@ pub fn spawn_process_with_thread_readers_with_env(
     });
 
     return (child, stdout_handle, stderr_handle);
+}
+
+pub fn ensure_handler_dir_exists() -> io::Result<PathBuf> {
+    let home = env::var("HOME")
+        .map(PathBuf::from)
+        .map_err(|_| io::Error::new(io::ErrorKind::NotFound, "HOME not set"))?;
+
+    let handlers_dir = home.join(".local/share/gridlaunch/handlers");
+
+    fs::create_dir_all(&handlers_dir)?;
+
+    Ok(handlers_dir)
+}
+
+pub fn find_handler_json_files() -> io::Result<Vec<PathBuf>> {
+    let handlers_dir = ensure_handler_dir_exists()?;
+
+    let mut json_files = Vec::new();
+
+    for entry in fs::read_dir(&handlers_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.extension().and_then(|e| e.to_str()) == Some("json") {
+            json_files.push(path);
+        }
+    }
+
+    Ok(json_files)
+}
+
+pub fn mime_from_extension(path: &str) -> &'static str {
+    if path.ends_with(".png") {
+        "image/png"
+    } else if path.ends_with(".jpg") || path.ends_with(".jpeg") {
+        "image/jpeg"
+    } else if path.ends_with(".ico") {
+        "image/x-icon"
+    } else if path.ends_with(".gif") {
+        "image/gif"
+    } else {
+        "application/octet-stream"
+    }
 }

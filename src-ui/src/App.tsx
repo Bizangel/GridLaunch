@@ -33,6 +33,11 @@ function App() {
     useCallback((ev: GamepadsUpdateEvent) => handleGamepadsUpdate(ev), [handleGamepadsUpdate]),
   )
 
+    useWebViewEventHandler(
+    'GameHandlersUpdate',
+    (handlers) => {console.log("handlers", handlers.handlers)}
+  )
+
   useWebViewEventHandler(
     'LaunchReturned',
     useCallback(() => {

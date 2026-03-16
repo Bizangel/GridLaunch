@@ -1,6 +1,7 @@
 pub mod common;
 pub mod event_handler;
 pub mod events;
+pub mod game_handler;
 pub mod game_instance;
 pub mod gamepad;
 pub mod gamepad_monitor;
@@ -10,5 +11,6 @@ pub mod launch;
 pub mod monitor;
 pub mod remapper_thread;
 pub mod spawner_thread;
+pub mod user_profile;
 pub mod utils;
 pub mod wry_ui_helper;
