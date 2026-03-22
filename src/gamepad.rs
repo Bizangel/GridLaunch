@@ -75,8 +75,15 @@ pub fn parse_button_event(
 
         // Left stick X axis
         EventSummary::AbsoluteAxis(_, AbsoluteAxisCode::ABS_X, val) => {
+            let Some(max) = gamepad._leftstick_x_max else {
+                return None;
+            };
+            let Some(min) = gamepad._leftstick_x_min else {
+                return None;
+            };
+
             let prev = gamepad._leftstick_x_prev;
-            let curr = normalize_axis255(val);
+            let curr = normalize(val, min, max);
 
             // update previous
             gamepad._leftstick_x_prev = curr;
@@ -92,8 +99,15 @@ pub fn parse_button_event(
 
         // Left stick Y axis
         EventSummary::AbsoluteAxis(_, AbsoluteAxisCode::ABS_Y, val) => {
+            let Some(max) = gamepad._leftstick_y_max else {
+                return None;
+            };
+            let Some(min) = gamepad._leftstick_y_min else {
+                return None;
+            };
+
             let prev = gamepad._leftstick_y_prev;
-            let curr = normalize_axis255(val);
+            let curr = normalize(val, min, max);
 
             // update previous
             gamepad._leftstick_y_prev = curr;
@@ -150,8 +164,12 @@ pub fn get_device_name_with_unk_default(dev: &Device) -> String {
 }
 
 // expects val to be [0-255]
-fn normalize_axis255(val: i32) -> f32 {
-    return (val as f32 - 127.5) / (127.5);
+fn normalize(val: i32, min: i32, max: i32) -> f32 {
+    let center = (min + max) / 2;
+    let half_range = (max - min) as f32 / 2.0;
+
+    let normalized = (val - center) as f32 / half_range;
+    return normalized.clamp(-1.0, 1.0);
 }
 
 fn find_stick_threshold_release<T>(curr: f32, prev: f32, options: (T, T)) -> Option<(T, bool)> {

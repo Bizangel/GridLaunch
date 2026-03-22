@@ -36,6 +36,7 @@ export type GAMEPAD_BUTTONS =
   | 'LB' | 'RB' | 'LS' | 'RS'
   | 'Start' | 'Select'
   | 'DpadLeft' | 'DpadRight' | 'DpadUp' | 'DpadDown'
+  | "LeftStickUp" | "LeftStickDown" | "LeftStickLeft" | "LeftStickRight"
 
 export type GamepadButtonPressedEvent = {
   type: 'AppGamepadButtonEvent'

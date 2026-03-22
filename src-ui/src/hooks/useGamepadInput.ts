@@ -42,7 +42,14 @@ export function useGamepadInput() {
     // All input is frozen while the game session is running
     if (phase === 'launching') return
 
-    const { button, gamepad_devpath: devPath } = ev
+    const { button: eventButton, gamepad_devpath: devPath } = ev
+    let button = eventButton;
+
+    // hack to make UI think stick is dpad for navigation purposes.
+    if (button == "LeftStickLeft") button = "DpadLeft"
+    if (button == "LeftStickRight") button = "DpadRight"
+    if (button == "LeftStickDown") button = "DpadDown"
+    if (button == "LeftStickUp") button = "DpadUp"
 
     // ── Phase: select-game ───────────────────────────────────────────────
     // Any controller can navigate — no identity check needed here
