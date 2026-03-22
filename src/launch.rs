@@ -7,6 +7,7 @@ use crate::game_instance::GameInstance;
 use crate::kwin_window_handling::load_kwin_script_dbus;
 use crate::kwin_window_handling::unload_kwin_script_dbus;
 use crate::monitor::find_user_game_display;
+use crate::monitor::get_main_monitor_xdotool;
 use crate::monitor::x11_get_main_monitor;
 use crate::remapper_thread::RemapperThread;
 use crate::utils::copy_to_temp_and_make_readable;
@@ -87,7 +88,7 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
         }
     };
 
-    let Some(monitor) = x11_get_main_monitor() else {
+    let Some(monitor) = x11_get_main_monitor().or_else(get_main_monitor_xdotool) else {
         eprintln!("Unable to find monitor");
         return;
     };

@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 use std::path::Path;
 use std::process;
+use std::process::Command;
 use x11rb::connection::Connection;
 use x11rb::protocol::randr::ConnectionExt;
 
@@ -10,6 +11,25 @@ pub struct Monitor {
     pub name: String,
     pub width: u32,
     pub height: u32,
+}
+
+pub fn get_main_monitor_xdotool() -> Option<Monitor> {
+    let output = Command::new("xdotool")
+        .args(["getdisplaygeometry"])
+        .output()
+        .ok()?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut parts = stdout.trim().split_whitespace();
+
+    let width = parts.next()?.parse::<u32>().ok()?;
+    let height = parts.next()?.parse::<u32>().ok()?;
+
+    Some(Monitor {
+        name: String::from("Display"),
+        width,
+        height,
+    })
 }
 
 pub fn x11_get_main_monitor() -> Option<Monitor> {
