@@ -10,7 +10,7 @@ use crate::utils::{find_handler_json_files, mime_from_extension};
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct GameHandler {
     // display
-    name: String,
+    pub name: String,
     description: String,
     image: Option<PathBuf>,
     image_base_64: Option<String>,

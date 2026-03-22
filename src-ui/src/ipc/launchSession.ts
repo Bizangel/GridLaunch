@@ -4,6 +4,9 @@ import { sendIPCEvent } from '../ipc/common'
 
 export function launchSession() {
   const s = useUIState.getState()
+  const game = s.selectedGameName;
+  if (game === null)
+    return;
 
   const readyPlayers = s.players
     .filter((p): p is NonNullable<typeof p> => p !== null && p.state === 'ready')
@@ -13,8 +16,10 @@ export function launchSession() {
       sideIndex: p.sideIndex,
     }))
 
+
+
   console.log('Launching:', {
-    game:        s.selectedGameName,
+    game:        game,
     orientation: s.splitOrientation,
     players:     readyPlayers,
   })
@@ -23,7 +28,8 @@ export function launchSession() {
     type:             'LaunchRequested',
     splitscreen_type: s.splitOrientation,
     gamepads:         readyPlayers.map((p) => p.devPath),
-    users:            readyPlayers.map((p) => p.profile),
+    users: readyPlayers.map((p) => p.profile),
+    game: game,
   })
 
   useUIState.getState().startLaunching()

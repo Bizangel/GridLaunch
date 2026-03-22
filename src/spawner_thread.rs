@@ -16,9 +16,9 @@ fn _spawner_thread_main(
 ) -> Result<(), String> {
     while !stop_signal.requested() {
         match rx.try_recv().ok() {
-            Some(GridLaunchWorkerEvent::SpawnInstances(event)) => {
+            Some(GridLaunchWorkerEvent::SpawnInstances { request, handler }) => {
                 // block spawn games and wait
-                spawn_games_and_wait(event);
+                spawn_games_and_wait(request, handler);
                 // notify UI that we have returned
                 let _ = ui_proxy.send_event(GridLaunchEvent::ForwardToWebViewEvent(
                     ToWebViewEvent::LaunchReturned,

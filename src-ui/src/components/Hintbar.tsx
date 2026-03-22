@@ -17,7 +17,7 @@ export function HintBar() {
   const isPickingProfile = activePicker?.state === 'picking'
   const isPickingSide    = activePicker?.state === 'picking-side'
 
-  const nextOrientation = orientation === 'horizontal' ? 'vertical' : 'horizontal'
+  const nextOrientation = orientation === 'Horizontal' ? 'Vertical' : 'Horizontal'
 
   const hints: Hint[] = []
 

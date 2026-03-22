@@ -1,4 +1,5 @@
 use crate::events::fromwebview_event::LaunchRequestedEvent;
+use crate::game_handler::GameHandler;
 use crate::game_instance::GameInstance;
 use crate::kwin_window_handling::load_kwin_script_dbus;
 use crate::kwin_window_handling::unload_kwin_script_dbus;
@@ -7,8 +8,8 @@ use crate::monitor::x11_get_main_monitor;
 use crate::remapper_thread::RemapperThread;
 use std::path::PathBuf;
 
-pub fn spawn_games_and_wait(event: LaunchRequestedEvent) {
-    println!("{:#?}", event);
+pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandler) {
+    println!("{:#?} handler: {:#?}", event, game_handler);
     return;
 
     let mut instances: Vec<GameInstance> = Vec::new();

@@ -1,4 +1,4 @@
-export type SplitOrientation = 'horizontal' | 'vertical'
+export type SplitOrientation = 'Horizontal' | 'Vertical'
 
 export type Phase = 'select-game' | 'join-players' | 'launching'
 
@@ -76,9 +76,10 @@ export type ToWebViewEvent =
 
 export type LaunchRequestedEvent = {
   type: 'LaunchRequested'
-  splitscreen_type: string
+  splitscreen_type: 'Horizontal' | 'Vertical'
   gamepads: string[]
-  users: string[]
+  users: string[],
+  game: string
 }
 
 export type WebViewReadyEvent = {

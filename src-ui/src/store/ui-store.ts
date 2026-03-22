@@ -47,7 +47,7 @@ export const useUIState = create<State & Actions>((set) => ({
   phase: 'select-game',
   games: [],
   selectedGameName: null,
-  splitOrientation: 'horizontal',
+  splitOrientation: 'Horizontal',
   connectedControllers: [],
   players: emptyPlayers,
   activePickerIdx: null,
@@ -84,7 +84,7 @@ export const useUIState = create<State & Actions>((set) => ({
 
   toggleOrientation: () =>
     set((s) => ({
-      splitOrientation: s.splitOrientation === 'horizontal' ? 'vertical' : 'horizontal',
+      splitOrientation: s.splitOrientation === 'Horizontal' ? 'Vertical' : 'Horizontal',
     })),
 
   syncControllers: (gamepads) =>

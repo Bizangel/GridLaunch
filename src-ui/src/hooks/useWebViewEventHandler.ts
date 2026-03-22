@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import type { ToWebViewEvent} from "../ipc/common"
+import type { ToWebViewEvent } from "../types"
 
 export const useWebViewEventHandler = <K extends ToWebViewEvent['type']>(type: K, callback: (ev: Extract<ToWebViewEvent, { type: K }>) => void) => {
     useEffect(() => {

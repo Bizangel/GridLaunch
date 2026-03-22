@@ -9,9 +9,9 @@ function hexToRgba(hex: string, alpha: number) {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
-function sideLabel(index: number, orientation: 'horizontal' | 'vertical', totalPlayers: number): string {
+function sideLabel(index: number, orientation: 'Horizontal' | 'Vertical', totalPlayers: number): string {
   if (totalPlayers <= 2) {
-    if (orientation === 'horizontal') return index === 0 ? 'top' : 'bottom'
+    if (orientation === 'Horizontal') return index === 0 ? 'top' : 'bottom'
     return index === 0 ? 'left' : 'right'
   }
   const labels = ['↖ top left', '↗ top right', '↙ bottom left', '↘ bottom right']
@@ -63,7 +63,7 @@ export function SidePicker() {
         <span className={styles.whoSub}>· {profileName} · pick a side</span>
       </div>
 
-      <div className={isGrid ? styles.gridLayout : orientation === 'horizontal' ? styles.stackH : styles.stackV}>
+      <div className={isGrid ? styles.gridLayout : orientation === 'Horizontal' ? styles.stackH : styles.stackV}>
         {Array.from({ length: sides }, (_, sideIdx) => {
           const ownerSlotIdx = takenSides.get(sideIdx)
           const isTaken = ownerSlotIdx !== undefined

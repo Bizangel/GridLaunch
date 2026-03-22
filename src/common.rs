@@ -1,4 +1,5 @@
 use evdev::{AbsoluteAxisCode, Device as EvdevDevice};
+use serde::Deserialize;
 use std::path::PathBuf;
 
 pub const RUNAS_SCRIPT_PATH: &str = "/home/arcanzu/scripts/gaming/run_as_user_gaming.sh";
@@ -47,4 +48,10 @@ impl AppGamepad {
             _leftstick_y_max: ymax,
         };
     }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize)]
+pub enum SplitscreenType {
+    Horizontal,
+    Vertical,
 }
