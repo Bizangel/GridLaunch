@@ -11,11 +11,11 @@ use std::env;
 use std::io;
 use std::path::PathBuf;
 
-pub fn find_kwin_script_path() -> Result<PathBuf, io::Error> {
+pub fn find_kwin_script_path(filename: &str) -> Result<PathBuf, io::Error> {
     let binary_path = env::current_exe()?;
     let splitscreen_path = binary_path
         .parent()
-        .map(|x| x.join("assets").join("kwin_splitscreen.js"));
+        .map(|x| x.join("assets").join(filename));
 
     let debug_path = binary_path
         .parent()
@@ -24,7 +24,7 @@ pub fn find_kwin_script_path() -> Result<PathBuf, io::Error> {
         // .and_then(|x| x.parent())
         .map(|x| x.join("src"))
         .map(|x| x.join("assets"))
-        .map(|x| x.join("kwin_splitscreen.js"));
+        .map(|x| x.join(filename));
 
     let possible_paths: Vec<Option<PathBuf>> = [splitscreen_path, debug_path].to_vec();
 
@@ -71,11 +71,23 @@ pub fn calc_instance_size(
             panic!("Unhandled more than 4 players");
         }
         SplitscreenType::Vertical => {
-            // if total_players == 2 {
-            //     return (monitor_width / 2, monitor_height);
-            // }
-            // TODO: FIX
-            return (100, 100);
+            if total_players == 2 {
+                return (monitor_width / 2, monitor_height);
+            }
+            // basically vertical is ignored if above 2 players
+            if total_players == 3 {
+                if player_index == 0 {
+                    // P1 gets full bar at top
+                    return (monitor_width, monitor_height / 2);
+                }
+                // quarter for rest
+                return (monitor_width / 2, monitor_height / 2);
+            }
+            if total_players == 4 {
+                // quarter
+                return (monitor_width / 2, monitor_height / 2);
+            }
+            panic!("Unhandled more than 4 players");
         }
     }
 }
@@ -86,7 +98,12 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
 
     let gamepads = event.gamepads;
 
-    let kwin_script_path = match find_kwin_script_path() {
+    let kwin_script = match event.splitscreen_type {
+        SplitscreenType::Horizontal => "kwin_splitscreen.js",
+        SplitscreenType::Vertical => "kwin_splitscreen_vertical.js",
+    };
+
+    let kwin_script_path = match find_kwin_script_path(kwin_script) {
         Ok(path) => path,
         Err(err) => {
             eprintln!("{}", err);
