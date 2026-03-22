@@ -1,5 +1,5 @@
-use crate::{common::RUNAS_SCRIPT_PATH, utils::spawn_process_with_thread_readers_with_env};
-use std::{collections::HashMap, process, thread::JoinHandle};
+use crate::utils::spawn_process_with_thread_readers_with_env;
+use std::{collections::HashMap, path::Path, process, thread::JoinHandle};
 
 pub struct GameInstance {
     user: String,
@@ -10,6 +10,7 @@ pub struct GameInstance {
 
 impl GameInstance {
     pub fn launch<'a>(
+        run_as_script_path: &Path,
         runas: &str,
         exec_args: Vec<&str>,
         gamepads_to_hide: impl IntoIterator<Item = &'a str>,
@@ -52,7 +53,7 @@ impl GameInstance {
 
         let map = HashMap::from([("SDL_VIDEODRIVER", "x11"), ("ENABLE_GAMESCOPE_WSI", "0")]);
         let (child, stdout_handle, stderr_handle) = spawn_process_with_thread_readers_with_env(
-            RUNAS_SCRIPT_PATH,
+            &run_as_script_path.to_string_lossy(),
             &full_args,
             &format!("GAME {}", runas),
             &map,

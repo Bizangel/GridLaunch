@@ -7,42 +7,7 @@ use crate::kwin_window_handling::unload_kwin_script_dbus;
 use crate::monitor::find_user_game_display;
 use crate::monitor::x11_get_main_monitor;
 use crate::remapper_thread::RemapperThread;
-use std::env;
-use std::io;
-use std::path::PathBuf;
-
-pub fn find_kwin_script_path(filename: &str) -> Result<PathBuf, io::Error> {
-    let binary_path = env::current_exe()?;
-    let splitscreen_path = binary_path
-        .parent()
-        .map(|x| x.join("assets").join(filename));
-
-    let debug_path = binary_path
-        .parent()
-        .and_then(|x| x.parent())
-        .and_then(|x| x.parent())
-        // .and_then(|x| x.parent())
-        .map(|x| x.join("src"))
-        .map(|x| x.join("assets"))
-        .map(|x| x.join(filename));
-
-    let possible_paths: Vec<Option<PathBuf>> = [splitscreen_path, debug_path].to_vec();
-
-    for pos_path in possible_paths.iter() {
-        let Some(path) = pos_path else {
-            continue;
-        };
-
-        if path.is_file() {
-            return path.canonicalize();
-        }
-    }
-
-    Err(io::Error::new(
-        io::ErrorKind::NotFound,
-        format!("Unable find KWin script path at {:#?}", possible_paths),
-    ))
-}
+use crate::utils::find_assets_path;
 
 pub fn calc_instance_size(
     player_index: u32,
@@ -103,7 +68,15 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
         SplitscreenType::Vertical => "kwin_splitscreen_vertical.js",
     };
 
-    let kwin_script_path = match find_kwin_script_path(kwin_script) {
+    let kwin_script_path = match find_assets_path(kwin_script) {
+        Ok(path) => path,
+        Err(err) => {
+            eprintln!("{}", err);
+            return;
+        }
+    };
+
+    let runas_script_path = match find_assets_path("run_as_user_gaming.sh") {
         Ok(path) => path,
         Err(err) => {
             eprintln!("{}", err);
@@ -128,6 +101,7 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
         );
 
         instances.push(GameInstance::launch(
+            &runas_script_path,
             &user,
             game_handler
                 .executable_args
@@ -158,6 +132,7 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
         }
 
         remapper_threads.push(RemapperThread::new(
+            &runas_script_path,
             &user,
             &display,
             "/home/game-user/terrariasplitscreenmapping.cfg",

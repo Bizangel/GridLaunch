@@ -1,8 +1,8 @@
 use nix::sys::signal::{self, Signal};
 use nix::unistd::Pid;
+use std::path::Path;
 use std::{process, thread::JoinHandle};
 
-use crate::common::RUNAS_SCRIPT_PATH;
 use crate::utils::spawn_process_with_thread_readers;
 
 pub struct RemapperThread {
@@ -14,6 +14,7 @@ pub struct RemapperThread {
 
 impl RemapperThread {
     pub fn new<'a>(
+        run_as_script: &Path,
         user: &str,
         display: &str,
         remap_config_path: &str,
@@ -33,7 +34,7 @@ impl RemapperThread {
             .collect();
 
         let (child, stdout, stderr) = spawn_process_with_thread_readers(
-            RUNAS_SCRIPT_PATH,
+            &run_as_script.to_string_lossy(),
             &args,
             &format!("GAMEPAD2KEY {}", user),
         );

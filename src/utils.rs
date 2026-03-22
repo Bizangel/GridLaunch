@@ -112,3 +112,35 @@ pub fn capitalize_display(s: &str) -> String {
         .collect::<Vec<_>>()
         .join(" ")
 }
+
+pub fn find_assets_path(filename: &str) -> Result<PathBuf, io::Error> {
+    let binary_path = env::current_exe()?;
+    let splitscreen_path = binary_path
+        .parent()
+        .map(|x| x.join("assets").join(filename));
+
+    let debug_path = binary_path
+        .parent()
+        .and_then(|x| x.parent())
+        .and_then(|x| x.parent())
+        .map(|x| x.join("src"))
+        .map(|x| x.join("assets"))
+        .map(|x| x.join(filename));
+
+    let possible_paths: Vec<Option<PathBuf>> = [splitscreen_path, debug_path].to_vec();
+
+    for pos_path in possible_paths.iter() {
+        let Some(path) = pos_path else {
+            continue;
+        };
+
+        if path.is_file() {
+            return path.canonicalize();
+        }
+    }
+
+    Err(io::Error::new(
+        io::ErrorKind::NotFound,
+        format!("Unable find script path at {:#?}", possible_paths),
+    ))
+}
