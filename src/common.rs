@@ -32,7 +32,6 @@ impl AppGamepad {
             if axis == AbsoluteAxisCode::ABS_Y {
                 ymin = Some(info.minimum());
                 ymax = Some(info.maximum());
-                println!("Found min - max: {:#?} - {:#?} for {}", ymin, ymax, &name)
             }
         }
 

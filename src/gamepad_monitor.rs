@@ -135,8 +135,6 @@ impl GamepadMonitor {
                     continue;
                 };
 
-                println!("event: {:#?}{}", btn, release);
-
                 let _ = self
                     .ui_proxy
                     .send_event(GridLaunchEvent::ForwardToWebViewEvent(

@@ -8,6 +8,9 @@ use crate::remapper_thread::RemapperThread;
 use std::path::PathBuf;
 
 pub fn spawn_games_and_wait(event: LaunchRequestedEvent) {
+    println!("{:#?}", event);
+    return;
+
     let mut instances: Vec<GameInstance> = Vec::new();
     let mut remapper_threads: Vec<RemapperThread> = Vec::new();
 
