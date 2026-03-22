@@ -1,3 +1,4 @@
+use crate::common::SplitscreenType;
 use crate::events::fromwebview_event::LaunchRequestedEvent;
 use crate::game_handler::GameHandler;
 use crate::game_instance::GameInstance;
@@ -43,11 +44,46 @@ pub fn find_kwin_script_path() -> Result<PathBuf, io::Error> {
     ))
 }
 
+pub fn calc_instance_size(
+    player_index: u32,
+    split_type: SplitscreenType,
+    total_players: u32,
+    monitor_width: u32,
+    monitor_height: u32,
+) -> (u32, u32) {
+    match split_type {
+        SplitscreenType::Horizontal => {
+            if total_players == 2 {
+                return (monitor_width, monitor_height / 2);
+            }
+            if total_players == 3 {
+                if player_index == 0 {
+                    // P1 gets full bar at top
+                    return (monitor_width, monitor_height / 2);
+                }
+                // quarter for rest
+                return (monitor_width / 2, monitor_height / 2);
+            }
+            if total_players == 4 {
+                // quarter
+                return (monitor_width / 2, monitor_height / 2);
+            }
+            panic!("Unhandled more than 4 players");
+        }
+        SplitscreenType::Vertical => {
+            // if total_players == 2 {
+            //     return (monitor_width / 2, monitor_height);
+            // }
+            // TODO: FIX
+            return (100, 100);
+        }
+    }
+}
+
 pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandler) {
     let mut instances: Vec<GameInstance> = Vec::new();
     let mut remapper_threads: Vec<RemapperThread> = Vec::new();
 
-    // let users = event.users;
     let gamepads = event.gamepads;
 
     let kwin_script_path = match find_kwin_script_path() {
@@ -65,11 +101,15 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
 
     load_kwin_script_dbus(kwin_script_path).expect("Unable to load kwin script");
 
-    // TODO: fix hardcode 2 player horizontal split-screen for now
-    let instance_height = monitor.height / 2;
-    let instance_width = monitor.width;
-
     for (i, user) in event.users.iter().enumerate() {
+        let (instance_width, instance_height) = calc_instance_size(
+            i as u32,
+            event.splitscreen_type,
+            event.users.len() as u32,
+            monitor.width,
+            monitor.height,
+        );
+
         instances.push(GameInstance::launch(
             &user,
             game_handler

@@ -6,6 +6,8 @@ TODO
 
 - Uses user-based approach. All users names must be created with game-user prefix. See scripts game-user
 
+- 3 Player UI has visual bugs. Chosen sides will not be perfectly honored.
+
 - Validate UI-sent events. Should validate users + dev inputs.
 
 - Should calculate appropiate width based on monitor.

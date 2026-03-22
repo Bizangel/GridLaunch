@@ -15,13 +15,8 @@ export function launchSession() {
       sideIndex: p.sideIndex,
     }))
 
-
-
-  console.log('Launching:', {
-    game:        game,
-    orientation: s.splitOrientation,
-    players:     readyPlayers,
-  })
+  // sort by side-index as this determines the screen side and how it's ordered.
+  readyPlayers.sort((a,b) => ((a.sideIndex ?? 0) - (b.sideIndex ?? 0)))
 
   sendIPCEvent({
     type:             'LaunchRequested',
