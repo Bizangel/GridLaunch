@@ -1,4 +1,5 @@
-// Adapted from: https://github.com/partydeck/partydeck/blob/main/res/splitscreen_kwin.js
+// copied from: https://github.com/partydeck/partydeck/blob/main/res/splitscreen_kwin.js
+
 const x = [
   [],
   [0],
@@ -19,7 +20,7 @@ const width = [
   [],
   [1],
   [1, 1],
-  [0.5, 0.5, 0.5],
+  [1, 0.5, 0.5],
   [0.5, 0.5, 0.5, 0.5]
 ]
 
@@ -27,23 +28,42 @@ const height = [
   [],
   [1],
   [0.5, 0.5],
-  [1, 0.5, 0.5],
+  [0.5, 0.5, 0.5],
   [0.5, 0.5, 0.5, 0.5]
 ]
 
-function getGamescopeWindows() {
-  return workspace.windowList().filter(e => e.resourceClass == "gamescope");
+function getGamescopeClients() {
+  var allClients = workspace.windowList();
+  var gamescopeClients = [];
+
+  for (var i = 0; i < allClients.length; i++) {
+    if (
+      allClients[i].resourceClass == "gamescope" ||
+      allClients[i].resourceClass == "gamescope-kbm"
+    ) {
+      gamescopeClients.push(allClients[i]);
+    }
+  }
+  return gamescopeClients;
 }
 
 function numGamescopeClientsInOutput(output) {
-    return getGamescopeWindows().filter(e => e.output.name == output.name).length;
+  var gamescopeClients = getGamescopeClients();
+  var count = 0;
+  for (var i = 0; i < gamescopeClients.length; i++) {
+    if (gamescopeClients[i].output == output) {
+      count++;
+    }
+  }
+  return count;
 }
 
-function gamescopeSetKeepAbove() {
-  var gamescopeClients = getGamescopeWindows();
+function gamescopeAboveBelow() {
+  var gamescopeClients = getGamescopeClients();
   for (var i = 0; i < gamescopeClients.length; i++) {
     if (
-      workspace.activeWindow.resourceClass == "gamescope"
+      workspace.activeWindow.resourceClass == "gamescope" ||
+      workspace.activeWindow.resourceClass == "gamescope-kbm"
     ) {
       gamescopeClients[i].keepAbove = true;
     } else {
@@ -52,8 +72,8 @@ function gamescopeSetKeepAbove() {
   }
 }
 
-function onWindowsChange() {
-  var gamescopeWindows = getGamescopeWindows();
+function gamescopeSplitscreen() {
+  var gamescopeClients = getGamescopeClients();
 
   var screenMap = new Map();
   var screens = workspace.screens;
@@ -61,8 +81,8 @@ function onWindowsChange() {
     screenMap.set(screens[j], 0);
   }
 
-  for (var i = 0; i < gamescopeWindows.length; i++) {
-    var monitor = gamescopeWindows[i].output;
+  for (var i = 0; i < gamescopeClients.length; i++) {
+    var monitor = gamescopeClients[i].output;
     var monitorX = monitor.geometry.x;
     var monitorY = monitor.geometry.y;
     var monitorWidth = monitor.geometry.width;
@@ -72,18 +92,17 @@ function onWindowsChange() {
     var playerIndex = screenMap.get(monitor);
     screenMap.set(monitor, playerIndex + 1);
 
-    gamescopeWindows[i].noBorder = true;
-    gamescopeWindows[i].frameGeometry = {
+    gamescopeClients[i].noBorder = true;
+    gamescopeClients[i].frameGeometry = {
       x: monitorX + x[playerCount][playerIndex] * monitorWidth,
       y: monitorY + y[playerCount][playerIndex] * monitorHeight,
       width: monitorWidth * width[playerCount][playerIndex],
       height: monitorHeight * height[playerCount][playerIndex],
     };
   }
-
-    gamescopeSetKeepAbove();
+  gamescopeAboveBelow();
 }
 
-workspace.windowAdded.connect(onWindowsChange);
-workspace.windowRemoved.connect(onWindowsChange);
-workspace.windowActivated.connect(gamescopeSetKeepAbove);
+workspace.windowAdded.connect(gamescopeSplitscreen);
+workspace.windowRemoved.connect(gamescopeSplitscreen);
+workspace.windowActivated.connect(gamescopeAboveBelow);
