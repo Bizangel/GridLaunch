@@ -61,11 +61,11 @@ impl GamepadMonitor {
             match EvdevDevice::open(&devnode) {
                 Ok(dev) => {
                     dev.set_nonblocking(true).map_err(|err| err.to_string())?;
-                    let gamepad = AppGamepad {
-                        devnode: devnode.to_path_buf(),
-                        name: get_device_name_with_unk_default(&device),
-                        evdev_device: dev,
-                    };
+                    let gamepad = AppGamepad::new(
+                        devnode.to_path_buf(),
+                        get_device_name_with_unk_default(&device),
+                        dev,
+                    );
                     let gamepadname = gamepad.name.clone();
                     self.gamepads.insert(devnode.to_path_buf(), gamepad);
                     println!("Added controller: {}", gamepadname);
@@ -97,12 +97,11 @@ impl GamepadMonitor {
                             if !dev.set_nonblocking(true).is_ok() {
                                 continue;
                             }
-
-                            let gamepad = AppGamepad {
-                                devnode: devnode.to_path_buf(),
-                                name: get_device_name_with_unk_default(&event),
-                                evdev_device: dev,
-                            };
+                            let gamepad = AppGamepad::new(
+                                devnode.to_path_buf(),
+                                get_device_name_with_unk_default(&event),
+                                dev,
+                            );
                             let gamepadname = gamepad.name.clone();
                             self.gamepads.insert(devnode.to_path_buf(), gamepad);
                             println!("Added controller: {}", gamepadname);
@@ -129,11 +128,14 @@ impl GamepadMonitor {
             let Ok(events) = gamepad.evdev_device.fetch_events() else {
                 continue;
             };
+            let events: Vec<_> = events.collect();
 
             for ev in events {
-                let Some((btn, release)) = parse_button_event(ev) else {
+                let Some((btn, release)) = parse_button_event(ev, gamepad) else {
                     continue;
                 };
+
+                println!("event: {:#?}{}", btn, release);
 
                 let _ = self
                     .ui_proxy

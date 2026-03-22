@@ -1,9 +1,12 @@
 use std::path::PathBuf;
 
+use crate::common::AppGamepad;
 use evdev::InputEvent;
 use evdev::{AbsoluteAxisCode, EventSummary, KeyCode};
 use serde::Serialize;
 use udev::Device;
+
+pub const GAMEPAD_STICK_THRESHOLD_PRESS: f32 = 0.7;
 
 #[derive(Debug, Clone, Copy, Serialize)]
 pub enum AppGamepadButton {
@@ -21,6 +24,10 @@ pub enum AppGamepadButton {
     DpadRight,
     DpadUp,
     DpadDown,
+    LeftStickRight,
+    LeftStickLeft,
+    LeftStickUp,
+    LeftStickDown,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -31,7 +38,10 @@ pub struct AppGamepadButtonEvent {
     pub gamepad_devpath: PathBuf,
 }
 
-pub fn parse_button_event(event: InputEvent) -> Option<(AppGamepadButton, bool)> {
+pub fn parse_button_event(
+    event: InputEvent,
+    gamepad: &mut AppGamepad,
+) -> Option<(AppGamepadButton, bool)> {
     match event.destructure() {
         EventSummary::Key(_, code, val) => {
             let button = match code {
@@ -62,6 +72,40 @@ pub fn parse_button_event(event: InputEvent) -> Option<(AppGamepadButton, bool)>
             1 => Some((AppGamepadButton::DpadDown, false)),
             _ => None,
         },
+
+        // Left stick X axis
+        EventSummary::AbsoluteAxis(_, AbsoluteAxisCode::ABS_X, val) => {
+            let prev = gamepad._leftstick_x_prev;
+            let curr = normalize_axis255(val);
+
+            // update previous
+            gamepad._leftstick_x_prev = curr;
+            return find_stick_threshold_release(
+                curr,
+                prev,
+                (
+                    AppGamepadButton::LeftStickLeft,
+                    AppGamepadButton::LeftStickRight,
+                ),
+            );
+        }
+
+        // Left stick Y axis
+        EventSummary::AbsoluteAxis(_, AbsoluteAxisCode::ABS_Y, val) => {
+            let prev = gamepad._leftstick_y_prev;
+            let curr = normalize_axis255(val);
+
+            // update previous
+            gamepad._leftstick_y_prev = curr;
+            return find_stick_threshold_release(
+                curr,
+                prev,
+                (
+                    AppGamepadButton::LeftStickUp,
+                    AppGamepadButton::LeftStickDown,
+                ),
+            );
+        }
 
         _ => None,
     }
@@ -103,4 +147,29 @@ pub fn get_device_name(mut event: udev::Device) -> Option<String> {
 
 pub fn get_device_name_with_unk_default(dev: &Device) -> String {
     get_device_name(dev.clone()).unwrap_or_else(|| "Unknown".into())
+}
+
+// expects val to be [0-255]
+fn normalize_axis255(val: i32) -> f32 {
+    return (val as f32 - 127.5) / (127.5);
+}
+
+fn find_stick_threshold_release<T>(curr: f32, prev: f32, options: (T, T)) -> Option<(T, bool)> {
+    if curr <= -GAMEPAD_STICK_THRESHOLD_PRESS && -GAMEPAD_STICK_THRESHOLD_PRESS < prev {
+        return Some((options.0, false));
+    }
+
+    if prev <= -GAMEPAD_STICK_THRESHOLD_PRESS && -GAMEPAD_STICK_THRESHOLD_PRESS < curr {
+        return Some((options.0, true));
+    }
+
+    if curr >= GAMEPAD_STICK_THRESHOLD_PRESS && GAMEPAD_STICK_THRESHOLD_PRESS > prev {
+        return Some((options.1, false));
+    }
+
+    if prev >= GAMEPAD_STICK_THRESHOLD_PRESS && GAMEPAD_STICK_THRESHOLD_PRESS > curr {
+        return Some((options.1, true));
+    }
+
+    return None;
 }
