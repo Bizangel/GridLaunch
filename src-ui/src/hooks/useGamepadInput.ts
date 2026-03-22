@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useUIState } from '../store/ui-store'
-import { PROFILES } from '../data'
 import { launchSession } from '../ipc/launchSession'
 import { gridNavRef } from './gridNavRef'
 import type { GamepadButtonPressedEvent, GamepadsUpdateEvent } from '../types'
@@ -10,6 +9,7 @@ export function useGamepadInput() {
   const phase           = useUIState((s) => s.phase)
   const games           = useUIState((s) => s.games)
   const players         = useUIState((s) => s.players)
+  const profiles        = useUIState((s) => s.profiles)
   const activePickerIdx = useUIState((s) => s.activePickerIdx)
   const gameCursor      = useUIState((s) => s.gameCursor)
   const profileCursor   = useUIState((s) => s.profileCursor)
@@ -129,12 +129,12 @@ export function useGamepadInput() {
       if (myPlayer?.state === 'picking') {
         const takenIds = new Set(
           players
-            .filter((p, i) => p !== null && i !== mySlotIdx && p.profileId !== null)
-            .map((p) => p!.profileId),
+            .filter((p, i) => p !== null && i !== mySlotIdx && p.profileUser !== null)
+            .map((p) => p!.profileUser),
         )
-        const available = PROFILES.filter((p) => !takenIds.has(p.id))
+        const available = profiles.filter((p) => !takenIds.has(p.user))
         const target = available[profileCursor]
-        if (target) pickProfile(target.id)
+        if (target) pickProfile(target.user)
         return
       }
 
@@ -164,10 +164,10 @@ export function useGamepadInput() {
     if (myPlayer?.state === 'picking') {
       const takenIds = new Set(
         players
-          .filter((p, i) => p !== null && i !== mySlotIdx && p.profileId !== null)
-          .map((p) => p!.profileId),
+          .filter((p, i) => p !== null && i !== mySlotIdx && p.profileUser !== null)
+          .map((p) => p!.profileUser),
       )
-      const availableCount = PROFILES.filter((p) => !takenIds.has(p.id)).length
+      const availableCount = profiles.filter((p) => !takenIds.has(p.user)).length
       if (availableCount === 0) return
       if (button === 'DpadUp')   moveProfileCursor(-1, availableCount)
       if (button === 'DpadDown') moveProfileCursor(1,  availableCount)
@@ -194,7 +194,7 @@ export function useGamepadInput() {
   }, [
     phase, games, players, activePickerIdx, gameCursor, profileCursor, sideCursor,
     confirmGame, changeGame, toggleOrientation, joinController, unjoinByDevPath, unjoinPlayer,
-    pickProfile, pickSide, moveProfileCursor, moveSideCursor,
+    pickProfile, pickSide, moveProfileCursor, moveSideCursor, profiles
   ])
 
   return { handleButtonEvent, handleGamepadsUpdate }

@@ -13,14 +13,15 @@ import { Sidebar } from './components/Sidebar'
 import { HintBar } from './components/Hintbar'
 import { LaunchingOverlay } from './components/LaunchingOverlay'
 import styles from './App.module.css'
-import type { GamepadButtonPressedEvent, GamepadsUpdateEvent, GameHandlersUpdateEvent } from './types'
+import type { GamepadButtonPressedEvent, GamepadsUpdateEvent, GameHandlersUpdateEvent, ProfilesUpdateEvent } from './types'
 
 function App() {
-  const phase            = useUIState((s) => s.phase)
+  const phase = useUIState((s) => s.phase)
   const returnFromLaunch = useUIState((s) => s.returnFromLaunch)
-  const syncHandlers     = useUIState((s) => s.syncHandlers)
+  const syncProfiles = useUIState((s) => s.syncProfiles)
+  const syncHandlers = useUIState((s) => s.syncHandlers)
   const { handleButtonEvent, handleGamepadsUpdate } = useGamepadInput()
-  const gridScrollRef    = useRef<HTMLDivElement>(null)
+  const gridScrollRef = useRef<HTMLDivElement>(null)
 
   // Keep the module-level ref in sync with the DOM element
   useEffect(() => {
@@ -45,6 +46,13 @@ function App() {
   useWebViewEventHandler(
     'GamepadsUpdate',
     useCallback((ev: GamepadsUpdateEvent) => handleGamepadsUpdate(ev), [handleGamepadsUpdate]),
+  )
+
+  useWebViewEventHandler(
+    'ProfilesUpdate',
+    useCallback((ev: ProfilesUpdateEvent) => {
+      syncProfiles(ev.profiles)
+    }, [syncProfiles])
   )
 
   useWebViewEventHandler(

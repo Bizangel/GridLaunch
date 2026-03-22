@@ -4,7 +4,7 @@ TODO
 
 ## TODOS / Limitations
 
-- Make UI fancier.
+- Uses user-based approach. All users names must be created with game-user prefix. See scripts game-user
 
 - Validate UI-sent events. Should validate users + dev inputs.
 

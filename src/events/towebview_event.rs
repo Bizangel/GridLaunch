@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::{
     events::worker_event::GamepadsUpdateEvent, game_handler::GameHandler,
-    gamepad::AppGamepadButtonEvent,
+    gamepad::AppGamepadButtonEvent, user_profile::UserProfile,
 };
 
 #[derive(Debug, Clone, Serialize)]
@@ -11,5 +11,6 @@ pub enum ToWebViewEvent {
     AppGamepadButtonEvent(AppGamepadButtonEvent),
     GamepadsUpdate(GamepadsUpdateEvent),
     GameHandlersUpdate { handlers: Vec<GameHandler> },
+    ProfilesUpdate { profiles: Vec<UserProfile> },
     LaunchReturned,
 }

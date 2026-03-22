@@ -7,12 +7,14 @@ use gridlaunch::game_handler::get_valid_game_handlers;
 use gridlaunch::gamepad_monitor::gamepad_monitor_worker_main;
 use gridlaunch::ipc_handler::ipc_handler;
 use gridlaunch::spawner_thread::spawner_thread_main;
+use gridlaunch::user_profile::get_all_profiles;
 use gridlaunch::utils::ensure_handler_dir_exists;
 use gridlaunch::wry_ui_helper::WryWebViewAppBuilder;
 
 fn main() -> Result<(), String> {
     ensure_handler_dir_exists().map_err(|err| err.to_string())?;
     let handlers = get_valid_game_handlers();
+    let profiles = get_all_profiles();
     let mut builder = WryWebViewAppBuilder::new()
         .with_title_name(UI_TITLE_NAME)
         .with_ipc_handler(ipc_handler)
@@ -21,6 +23,7 @@ fn main() -> Result<(), String> {
         .with_event_handler(handle_event)
         .with_initial_state(GridLaunchState {
             game_handlers: handlers,
+            profiles: profiles,
         });
     #[cfg(debug_assertions)]
     {

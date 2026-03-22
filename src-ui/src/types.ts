@@ -16,15 +16,14 @@ export type Controller = {
 }
 
 export type Profile = {
-  id: number
-  name: string
-  saveSlot: string
+  user: string
+  display_name: string
   initials: string
 }
 
 export type PlayerSlot = {
   devPath: string
-  profileId: number | null
+  profileUser: string | null
   sideIndex: number | null
   state: 'picking' | 'picking-side' | 'ready'
 } | null
@@ -68,11 +67,17 @@ export type GameHandlersUpdateEvent = {
   handlers: GameHandler[]
 }
 
+export type ProfilesUpdateEvent = {
+  type: 'ProfilesUpdate'
+  profiles: Profile[]
+}
+
 export type ToWebViewEvent =
   | GamepadButtonPressedEvent
   | GamepadsUpdateEvent
   | LaunchReturnedEvent
   | GameHandlersUpdateEvent
+  | ProfilesUpdateEvent
 
 export type LaunchRequestedEvent = {
   type: 'LaunchRequested'

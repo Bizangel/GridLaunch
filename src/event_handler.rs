@@ -3,12 +3,14 @@ use crate::{
         fromwebview_event::FromWebViewEvent, gridlaunch_event::GridLaunchEvent,
         towebview_event::ToWebViewEvent, worker_event::GridLaunchWorkerEvent,
     },
-    game_handler::{GameHandler, get_valid_game_handlers},
+    game_handler::GameHandler,
+    user_profile::UserProfile,
     wry_ui_helper::WryWebViewApp,
 };
 
 pub struct GridLaunchState {
     pub game_handlers: Vec<GameHandler>,
+    pub profiles: Vec<UserProfile>,
 }
 
 pub fn handle_event(
@@ -51,7 +53,13 @@ pub fn handle_event(
                     return;
                 }
 
-                // TODO: validate users are valid.
+                // validate all users exist.
+                for user in launch_event.users.iter() {
+                    let Some(_) = app.state.profiles.iter().find(|&prof| &prof.user == user) else {
+                        eprintln!("Given non-existing user: {}", user);
+                        return;
+                    };
+                }
 
                 app.broadcast_to_workers(GridLaunchWorkerEvent::SpawnInstances {
                     request: launch_event,
@@ -63,6 +71,11 @@ pub fn handle_event(
                 app.emit(GridLaunchEvent::ForwardToWebViewEvent(
                     ToWebViewEvent::GameHandlersUpdate {
                         handlers: app.state.game_handlers.clone(),
+                    },
+                ));
+                app.emit(GridLaunchEvent::ForwardToWebViewEvent(
+                    ToWebViewEvent::ProfilesUpdate {
+                        profiles: app.state.profiles.clone(),
                     },
                 ));
             }

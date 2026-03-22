@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
-import type { Controller, Game, Phase, PlayerSlot, SplitOrientation } from '../types'
+import type { Controller, Game, Phase, PlayerSlot, Profile, SplitOrientation } from '../types'
 
 type State = {
   phase: Phase
@@ -9,6 +9,7 @@ type State = {
   splitOrientation: SplitOrientation
   connectedControllers: Controller[]
   players: [PlayerSlot, PlayerSlot, PlayerSlot, PlayerSlot]
+  profiles: Profile[],
   activePickerIdx: number | null
   gameCursor: number
   profileCursor: number
@@ -20,11 +21,12 @@ type Actions = {
   confirmGame: (gameName: string) => void
   changeGame: () => void
   toggleOrientation: () => void
+  syncProfiles: (gamepads: Profile[]) => void
   syncControllers: (gamepads: Record<string, string>) => void
   joinController: (devPath: string) => void
   unjoinByDevPath: (devPath: string) => void
   unjoinPlayer: (slotIdx: number) => void
-  pickProfile: (profileId: number) => void
+  pickProfile: (profileId: string) => void
   pickSide: (sideIndex: number) => void
   setPickerActive: (slotIdx: number) => void
   setGameCursor: (index: number) => void
@@ -49,6 +51,7 @@ export const useUIState = create<State & Actions>((set) => ({
   selectedGameName: null,
   splitOrientation: 'Horizontal',
   connectedControllers: [],
+  profiles: [],
   players: emptyPlayers,
   activePickerIdx: null,
   gameCursor: 0,
@@ -67,6 +70,13 @@ export const useUIState = create<State & Actions>((set) => ({
       // Clamp cursor in case the new list is shorter
       gameCursor: Math.min(s.gameCursor, Math.max(0, handlers.length - 1)),
     })),
+
+  syncProfiles: (profiles) =>
+    set(
+      produce((draft: State) => {
+        draft.profiles = profiles
+      }),
+    ),
 
   confirmGame: (gameName) =>
     set({ phase: 'join-players', selectedGameName: gameName }),
@@ -112,7 +122,7 @@ export const useUIState = create<State & Actions>((set) => ({
         if (draft.players.some((p) => p?.devPath === devPath)) return
         const slot = draft.players.findIndex((p) => p === null)
         if (slot === -1) return
-        draft.players[slot] = { devPath, profileId: null, sideIndex: null, state: 'picking' }
+        draft.players[slot] = { devPath, profileUser: null, sideIndex: null, state: 'picking' }
         draft.activePickerIdx = slot
         draft.profileCursor = 0
       }),
@@ -140,13 +150,15 @@ export const useUIState = create<State & Actions>((set) => ({
       }),
     ),
 
-  pickProfile: (profileId) =>
+  pickProfile: (profileUser) =>
     set(
       produce((draft: State) => {
         if (draft.activePickerIdx === null) return
+        const profileToPick = draft.profiles.find(e => e.user == profileUser)
+        if (!profileToPick) return
         const slot = draft.players[draft.activePickerIdx]
         if (!slot) return
-        slot.profileId = profileId
+        slot.profileUser = profileUser
         slot.state = 'picking-side'
         draft.sideCursor = 0
       }),
@@ -172,7 +184,7 @@ export const useUIState = create<State & Actions>((set) => ({
         const slot = draft.players[slotIdx]
         if (!slot) return
         slot.state = 'picking'
-        slot.profileId = null
+        slot.profileUser = null
         slot.sideIndex = null
         draft.activePickerIdx = slotIdx
         draft.profileCursor = 0

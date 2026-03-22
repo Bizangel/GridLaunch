@@ -97,3 +97,18 @@ pub fn mime_from_extension(path: &str) -> &'static str {
         "application/octet-stream"
     }
 }
+
+pub fn capitalize_display(s: &str) -> String {
+    s.replace("-", " ")
+        .replace("_", " ")
+        .split_whitespace()
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}

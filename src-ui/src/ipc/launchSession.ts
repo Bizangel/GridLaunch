@@ -1,5 +1,4 @@
 import { useUIState } from '../store/ui-store'
-import { PROFILES } from '../data'
 import { sendIPCEvent } from '../ipc/common'
 
 export function launchSession() {
@@ -12,7 +11,7 @@ export function launchSession() {
     .filter((p): p is NonNullable<typeof p> => p !== null && p.state === 'ready')
     .map((p) => ({
       devPath:   p.devPath,
-      profile:   PROFILES.find((pr) => pr.id === p.profileId)?.name ?? 'unknown',
+      profile:   s.profiles.find((pr) => pr.user  === p.profileUser)?.user ?? 'unknown',
       sideIndex: p.sideIndex,
     }))
 

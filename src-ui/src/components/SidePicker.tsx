@@ -1,5 +1,5 @@
 import { useUIState } from '../store/ui-store'
-import { PLAYER_COLORS, PLAYER_LABELS, PROFILES } from '../data'
+import { PLAYER_COLORS, PLAYER_LABELS } from '../data'
 import styles from './SidePicker.module.css'
 
 function hexToRgba(hex: string, alpha: number) {
@@ -27,6 +27,7 @@ export function SidePicker() {
   const activePickerIdx = useUIState((s) => s.activePickerIdx)
   const orientation = useUIState((s) => s.splitOrientation)
   const sideCursor = useUIState((s) => s.sideCursor)
+  const profiles = useUIState((s) => s.profiles)
   const pickSide = useUIState((s) => s.pickSide)
 
   if (activePickerIdx === null) return null
@@ -35,8 +36,8 @@ export function SidePicker() {
 
   const activeColor = PLAYER_COLORS[activePickerIdx]
   const activeLabel = PLAYER_LABELS[activePickerIdx]
-  const profileName = activePicker.profileId !== null
-    ? PROFILES.find((p) => p.id === activePicker.profileId)?.name ?? ''
+  const profileName = activePicker.profileUser !== null
+    ? profiles.find((p) => p.user === activePicker.profileUser)?.user ?? ''
     : ''
 
   const joinedCount = players.filter(Boolean).length

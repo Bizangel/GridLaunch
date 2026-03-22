@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { useUIState } from '../store/ui-store'
-import { PROFILES, PLAYER_COLORS, PLAYER_LABELS } from '../data'
+import { PLAYER_COLORS, PLAYER_LABELS } from '../data'
 import styles from './ProfileList.module.css'
 
 function hexToRgba(hex: string, alpha: number) {
@@ -13,6 +13,7 @@ function hexToRgba(hex: string, alpha: number) {
 export function ProfileList() {
   const phase = useUIState((s) => s.phase)
   const players = useUIState((s) => s.players)
+  const profiles = useUIState((s) => s.profiles)
   const activePickerIdx = useUIState((s) => s.activePickerIdx)
   const profileCursor = useUIState((s) => s.profileCursor)
   const pickProfile = useUIState((s) => s.pickProfile)
@@ -22,27 +23,27 @@ export function ProfileList() {
   const activeColor = activePickerIdx !== null ? PLAYER_COLORS[activePickerIdx] : undefined
   const activeLabel = activePickerIdx !== null ? PLAYER_LABELS[activePickerIdx] : undefined
 
-  function ownerOf(profileId: number): number | null {
-    const idx = players.findIndex((p) => p?.profileId === profileId)
+  function ownerOf(profileUser: string): number | null {
+    const idx = players.findIndex((p) => p?.profileUser === profileUser)
     return idx === -1 ? null : idx
   }
 
   const rowRefs = useRef<(HTMLDivElement | null)[]>([])
 
-  const takenIds = new Set(
+  const takenProfiles = new Set(
     players
-      .filter((p, i) => p !== null && i !== activePickerIdx && p.profileId !== null)
-      .map((p) => p!.profileId),
+      .filter((p, i) => p !== null && i !== activePickerIdx && p.profileUser !== null)
+      .map((p) => p!.profileUser),
   )
-  const availableProfiles = PROFILES.filter((p) => !takenIds.has(p.id))
+  const availableProfiles = profiles.filter((p) => !takenProfiles.has(p.user))
 
   // Scroll the cursor row into view when profileCursor changes
   useEffect(() => {
     const target = availableProfiles[profileCursor]
     if (!target) return
-    const globalIdx = PROFILES.findIndex((p) => p.id === target.id)
+    const globalIdx = profiles.findIndex((p) => p.user === target.user)
     rowRefs.current[globalIdx]?.scrollIntoView({ block: 'nearest' })
-  }, [profileCursor, availableProfiles])
+  }, [profileCursor, availableProfiles, profiles])
 
   return (
     <div className={`${styles.section} ${isLocked ? styles.locked : ''}`}>
@@ -56,21 +57,21 @@ export function ProfileList() {
       </div>
 
       <div className={styles.list}>
-        {PROFILES.map((profile) => {
-          const ownerIdx = ownerOf(profile.id)
+        {profiles.map((profile) => {
+          const ownerIdx = ownerOf(profile.user)
           const isTaken = ownerIdx !== null
           const ownerColor = isTaken ? PLAYER_COLORS[ownerIdx!] : undefined
           const ownerLabel = isTaken ? PLAYER_LABELS[ownerIdx!] : undefined
           const isPickable = !!activePicker && !isTaken
 
           // Cursor highlight — find this profile's position in the available list
-          const availableIdx = availableProfiles.findIndex((p) => p.id === profile.id)
+          const availableIdx = availableProfiles.findIndex((p) => p.user === profile.user)
           const isCursorOn = isPickable && availableIdx === profileCursor
 
           return (
             <div
-              key={profile.id}
-              ref={(el) => { rowRefs.current[PROFILES.indexOf(profile)] = el }}
+              key={profile.user}
+              ref={(el) => { rowRefs.current[profiles.indexOf(profile)] = el }}
               className={[
                 styles.row,
                 isTaken && styles.taken,
@@ -84,7 +85,7 @@ export function ProfileList() {
                   ? { borderColor: hexToRgba(ownerColor, 0.45), background: hexToRgba(ownerColor, 0.05) }
                   : undefined
               }
-              onClick={() => isPickable && pickProfile(profile.id)}
+              onClick={() => isPickable && pickProfile(profile.user)}
             >
               <div
                 className={styles.avatar}
@@ -100,7 +101,7 @@ export function ProfileList() {
               </div>
 
               <div className={styles.info}>
-                <div className={styles.name}>{profile.name}</div>
+                <div className={styles.name}>{profile.display_name}</div>
               </div>
 
               {isTaken && ownerColor && (
