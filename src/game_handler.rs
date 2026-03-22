@@ -16,7 +16,7 @@ pub struct GameHandler {
     image_base_64: Option<String>,
     max_players: u32,
     // executable
-    executable_args: Vec<String>,
+    pub executable_args: Vec<String>,
 }
 
 impl GameHandler {

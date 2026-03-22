@@ -11,6 +11,7 @@ pub struct GameInstance {
 impl GameInstance {
     pub fn launch<'a>(
         runas: &str,
+        exec_args: Vec<&str>,
         gamepads_to_hide: impl IntoIterator<Item = &'a str>,
         width: u32,
         height: u32,
@@ -38,13 +39,15 @@ impl GameInstance {
             .into_iter()
             .flat_map(|x| ["--bind", "/dev/null", &x])
             .collect();
-        let game_args = vec!["steam", "-console", "steam://open/bigpicture"];
+
+        // example for steam
+        // let game_args = vec!["steam", "-console", "steam://open/bigpicture"];
 
         let full_args: Vec<&str> = std::iter::empty()
             .chain(std::iter::once(runas))
             .chain(gamescope_args.into_iter())
             .chain(bwrap_hide_args.into_iter())
-            .chain(game_args.into_iter())
+            .chain(exec_args.into_iter())
             .collect();
 
         let map = HashMap::from([("SDL_VIDEODRIVER", "x11"), ("ENABLE_GAMESCOPE_WSI", "0")]);
