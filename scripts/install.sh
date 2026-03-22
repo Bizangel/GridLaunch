@@ -7,6 +7,7 @@ npm run build
 cd ..
 cargo build --release
 
+sudo rm -rf /opt/gridlaunch
 sudo mkdir -p /opt/gridlaunch
 sudo cp target/release/gridlaunch /opt/gridlaunch/gridlaunch
 sudo cp src/assets -r /opt/gridlaunch/assets/
