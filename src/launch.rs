@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::common::SplitscreenType;
 use crate::events::fromwebview_event::LaunchRequestedEvent;
 use crate::game_handler::GameHandler;
@@ -7,6 +9,7 @@ use crate::kwin_window_handling::unload_kwin_script_dbus;
 use crate::monitor::find_user_game_display;
 use crate::monitor::x11_get_main_monitor;
 use crate::remapper_thread::RemapperThread;
+use crate::utils::copy_to_temp_and_make_readable;
 use crate::utils::find_assets_path;
 
 pub fn calc_instance_size(
@@ -123,19 +126,39 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
     std::thread::sleep(std::time::Duration::from_secs(3));
 
     for (i, user) in event.users.iter().enumerate() {
-        let Some(display) = find_user_game_display(&user) else {
+        let Some(ref configs) = game_handler.remapping_configs else {
             continue;
         };
 
-        if user != "game-user" {
+        let Some(config_path) = configs.get(user) else {
+            continue;
+        };
+
+        if !config_path.exists() {
+            eprintln!(
+                "WARN: Invalid config path given {} - ignoring remapper thread.",
+                config_path.to_string_lossy()
+            );
             continue;
         }
+
+        let Ok(tmp_path) = copy_to_temp_and_make_readable(
+            config_path,
+            Path::new(&format!("/tmp/gridlaunch-remapper-config-{}.cfg", user)),
+        ) else {
+            eprintln!("WARN: Unable to copy and make readable remapper thread config - ignoring.");
+            continue;
+        };
+
+        let Some(display) = find_user_game_display(&user) else {
+            continue;
+        };
 
         remapper_threads.push(RemapperThread::new(
             &runas_script_path,
             &user,
             &display,
-            "/home/game-user/terrariasplitscreenmapping.cfg",
+            &tmp_path.to_string_lossy(),
             gamepads
                 .iter()
                 .enumerate()

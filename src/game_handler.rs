@@ -1,6 +1,7 @@
 use base64::{Engine as _, engine::general_purpose};
 use serde::{Deserialize, Serialize};
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -15,6 +16,9 @@ pub struct GameHandler {
     image: Option<PathBuf>,
     image_base_64: Option<String>,
     max_players: u32,
+
+    // optional remapping thread for users
+    pub remapping_configs: Option<HashMap<String, PathBuf>>,
     // executable
     pub executable_args: Vec<String>,
 }

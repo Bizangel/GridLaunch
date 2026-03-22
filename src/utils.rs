@@ -3,6 +3,8 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::{BufRead, BufReader};
+use std::os::unix::fs::PermissionsExt;
+use std::path::Path;
 use std::path::PathBuf;
 use std::thread;
 use std::{process, thread::JoinHandle};
@@ -143,4 +145,16 @@ pub fn find_assets_path(filename: &str) -> Result<PathBuf, io::Error> {
         io::ErrorKind::NotFound,
         format!("Unable find script path at {:#?}", possible_paths),
     ))
+}
+
+pub fn copy_to_temp_and_make_readable(src: &Path, dst: &Path) -> io::Result<PathBuf> {
+    // Copy file
+    fs::copy(src, dst)?;
+
+    // Set permissions to rw-r--r-- (owner read/write, others read)
+    let mut perms = fs::metadata(dst)?.permissions();
+    perms.set_mode(0o644);
+    fs::set_permissions(dst, perms)?;
+
+    Ok(dst.to_path_buf())
 }
