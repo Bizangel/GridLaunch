@@ -122,7 +122,7 @@ pub fn spawn_games_and_wait(event: LaunchRequestedEvent, game_handler: GameHandl
         ));
 
         // gives time for windows to settle etc.
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        std::thread::sleep(std::time::Duration::from_millis(500));
     }
     std::thread::sleep(std::time::Duration::from_secs(3));
 
